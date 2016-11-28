@@ -21,7 +21,7 @@ dependencies {
 
         //compile "com.android.support:appcompat-v7:20.0.+"
     	compile "com.android.support:support-v4:20.0.+"
-    	compile "com.google.android.gms:play-services-games:8.4.0"
+    	compile "com.google.android.gms:play-services-games:9.8.0"
     	//compile "com.google.android.gms:play-services-plus:8.4.0"
     }
 
