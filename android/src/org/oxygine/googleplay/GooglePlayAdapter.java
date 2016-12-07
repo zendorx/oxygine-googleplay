@@ -17,6 +17,10 @@ import com.google.android.gms.games.achievement.Achievement;
 import com.google.android.gms.games.achievement.AchievementBuffer;
 import com.google.android.gms.games.achievement.Achievements;
 
+import com.google.android.gms.appinvite.AppInvite;
+import com.google.android.gms.appinvite.AppInviteInvitation;
+import com.google.android.gms.appinvite.AppInviteInvitationResult;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oxygine.lib.extension.ActivityObserver;
@@ -45,6 +49,7 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
 
         // Create the Google Api Client with access to the Play Games services
         mGoogleApiClient = new GoogleApiClient.Builder(_activity)
+                .addApi(AppInvite.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(Games.API).addScope(Games.SCOPE_GAMES)
@@ -53,6 +58,11 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
                         // add other APIs and scopes here as needed
                 .build();
 
+    }
+
+    public GoogleApiClient getGoogleApiClient()
+    {
+    	return mGoogleApiClient;
     }
 
     boolean getTryResolveError()
