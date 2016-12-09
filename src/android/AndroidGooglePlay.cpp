@@ -24,6 +24,17 @@ bool isGooglePlayEnabled()
 
 extern "C"
 {
+    JNIEXPORT void JNICALL Java_org_oxygine_googleplay_GooglePlayAdapter_nativeOnGetToken(JNIEnv* env, jobject obj, jstring token)
+    {
+        string token_c = jniGetString(env, token);
+        
+        core::getMainThreadDispatcher().postCallback([ = ]()
+        {
+            log::messageln("SDL nativeOnGetToken %s", token_c.c_str());
+            googleplay::internal::onGetTokenResult(token_c);
+        });
+    }
+
     JNIEXPORT void JNICALL Java_org_oxygine_googleplay_GooglePlayAdapter_nativeOnSignInResult(JNIEnv* env, jobject obj, int error)
     {
         core::getMainThreadDispatcher().postCallback([ = ]()

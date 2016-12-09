@@ -1,12 +1,21 @@
 package org.oxygine.googleplay;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.appinvite.AppInvite;
+import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
+import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -17,17 +26,14 @@ import com.google.android.gms.games.achievement.Achievement;
 import com.google.android.gms.games.achievement.AchievementBuffer;
 import com.google.android.gms.games.achievement.Achievements;
 
-import com.google.android.gms.appinvite.AppInvite;
-import com.google.android.gms.appinvite.AppInviteInvitation;
-import com.google.android.gms.appinvite.AppInviteInvitationResult;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.oxygine.lib.extension.ActivityObserver;
 
+import java.io.IOException;
+
 public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener
-{
+        GoogleApiClient.OnConnectionFailedListener {
     private static String TAG = "GooglePlayAdapter";
     private GoogleApiClient mGoogleApiClient;
     private Activity _activity;
@@ -40,10 +46,14 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
 
     public static int AR_REQUEST_LEADERBOARD = 20000;
     public static int AR_REQUEST_ACHIEVEMENTS = 20001;
+    public static int AR_REQUEST_TOKEN_RECOVER = 20002;
 
     public static native void nativeOnSignInResult(int errorCode);
 
+    public static native void nativeOnGetToken(String token);
+
     public String _currentUserID = "";
+    public String _currentToken = "";
 
     public GooglePlayAdapter(Activity a) {
         _activity = a;
@@ -55,26 +65,27 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(Games.API).addScope(Games.SCOPE_GAMES)
-               // .addApi(Plus.API)
-                //.addScope(Plus.SCOPE_PLUS_PROFILE)
+                        // .addApi(Plus.API)
+                        //.addScope(Plus.SCOPE_PLUS_PROFILE)
                         // add other APIs and scopes here as needed
                 .build();
 
     }
 
-    public GoogleApiClient getGoogleApiClient()
-    {
-    	return mGoogleApiClient;
+    public GoogleApiClient getGoogleApiClient() {
+        return mGoogleApiClient;
     }
 
-    boolean getTryResolveError()
-    {
+    boolean getTryResolveError() {
         return _tryToResolveError;
     }
 
-    public String getUserID()
-    {
- 		return _currentUserID;
+    public String getUserID() {
+        return _currentUserID;
+    }
+
+    public String getToken() {
+        return _currentToken;
     }
 
     @Override
@@ -97,8 +108,15 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
             }
         }*/
 
-        if (requestCode == RC_RESOLVE)
-        {
+        if (requestCode == AR_REQUEST_TOKEN_RECOVER) {
+            if (resultCode == Activity.RESULT_OK) {
+                createTokenTask();
+            } else {
+                nativeOnGetToken("");
+            }
+        }
+
+        if (requestCode == RC_RESOLVE) {
             mResolvingConnectionFailure = false;
             if (resultCode == Activity.RESULT_OK) {
                 Log.i(TAG, "onActivityResult: Resolution was RESULT_OK, so connecting current client again.");
@@ -110,6 +128,7 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
                 // User cancelled.
                 Log.i(TAG, "onActivityResult: Got a cancellation result, so disconnecting.");
                 _currentUserID = "";
+                _currentToken = "";
                 mGoogleApiClient.disconnect();
                 nativeOnSignInResult(ERR_RESULT_CANCELED);
             } else {
@@ -123,13 +142,11 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
         }
     }
 
-    public boolean isSignedIn()
-    {
+    public boolean isSignedIn() {
         return mGoogleApiClient != null && mGoogleApiClient.isConnected();
     }
 
-    public void signin(boolean tryToResolveError)
-    {
+    public void signin(boolean tryToResolveError) {
         if (mGoogleApiClient == null)
             return;
 
@@ -145,27 +162,27 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
         _activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-            	_currentUserID = "";
+                _currentUserID = "";
+                _currentToken = "";
                 mGoogleApiClient.connect();
             }
         });
     }
 
-    public void signout()
-    {
+    public void signout() {
         Log.i(TAG, "signout");
         _activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-            	_currentUserID = "";
+                _currentUserID = "";
+                _currentToken = "";
                 mGoogleApiClient.disconnect();
             }
         });
 
     }
 
-    void showAchievements()
-    {
+    void showAchievements() {
 
 
         if (!isSignedIn())
@@ -195,18 +212,17 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
             }});
     }*/
 
-    public void showLeaderBoard(final String leaderBoardID)
-    {
-        _activity.runOnUiThread( new Runnable() {
+    public void showLeaderBoard(final String leaderBoardID) {
+        _activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 _activity.startActivityForResult(Games.Leaderboards.getLeaderboardIntent(mGoogleApiClient,
                         leaderBoardID), AR_REQUEST_LEADERBOARD);
-            }});
+            }
+        });
     }
 
-    public void submitScore(final int score, final String leaderBoardID)
-    {
+    public void submitScore(final int score, final String leaderBoardID) {
         _activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -236,8 +252,7 @@ public void onConnected(Bundle bundle) {
     /*
     syncAchievements : { "CgkI1JqekoMWEAIQAg" : 1 }
     * */
-    public void syncAchievements(final String json_achievs)
-    {
+    public void syncAchievements(final String json_achievs) {
         Log.i(TAG, "syncAchievements called: " + json_achievs);
         PendingResult<Achievements.LoadAchievementsResult> achievementsResult = Games.Achievements.load(mGoogleApiClient, false);
         achievementsResult.setResultCallback(new ResultCallback<Achievements.LoadAchievementsResult>() {
@@ -258,8 +273,7 @@ public void onConnected(Bundle bundle) {
                                     int type = achievement.getType();
                                     int value = Integer.parseInt(svalue);
 
-                                    if (type == Achievement.TYPE_INCREMENTAL)
-                                    {
+                                    if (type == Achievement.TYPE_INCREMENTAL) {
                                         int add = value - achievement.getCurrentSteps();
                                         if (add > 0) {
                                             Log.i(TAG, "syncAchievements increment: [" + id + "] " + String.valueOf(add));
@@ -269,10 +283,8 @@ public void onConnected(Bundle bundle) {
                                         }
                                     }
 
-                                    if (type == Achievement.TYPE_STANDARD)
-                                    {
-                                        if (value == 1 && achievement.getState() == Achievement.STATE_REVEALED)
-                                        {
+                                    if (type == Achievement.TYPE_STANDARD) {
+                                        if (value == 1 && achievement.getState() == Achievement.STATE_REVEALED) {
                                             Log.i(TAG, "syncAchievements unlocked: " + id);
                                             Games.Achievements.unlock(mGoogleApiClient, id);
                                         }
@@ -290,38 +302,24 @@ public void onConnected(Bundle bundle) {
     }
 
 
-    private String getStringJsonParam(final String jsonStr, final String paramId)
-    {
-        try
-        {
+    private String getStringJsonParam(final String jsonStr, final String paramId) {
+        try {
             JSONObject jsonObj = new JSONObject(jsonStr);
             return jsonObj.getString(paramId);
-        }
-        catch (JSONException e)
-        {
-           // Log.i(TAG, "getStringJsonParam json exception");
+        } catch (JSONException e) {
+            // Log.i(TAG, "getStringJsonParam json exception");
         }
         return "";
     }
 
 
-
-
-
-
-
-
-
-
     @Override
-    public void onStart()
-    {
-       // mGoogleApiClient.connect();
+    public void onStart() {
+        // mGoogleApiClient.connect();
     }
 
     @Override
-    public void onStop()
-    {
+    public void onStop() {
         mGoogleApiClient.disconnect();
     }
 
@@ -343,9 +341,10 @@ public void onConnected(Bundle bundle) {
 
         // The player is signed in. Hide the sign-in button and allow the
         // player to proceed.
-        Log.i(TAG, "onConnected");            
+        Log.i(TAG, "onConnected");
         _currentUserID = Games.getCurrentAccountName(mGoogleApiClient);
         nativeOnSignInResult(0);
+        createTokenTask();
     }
 
     private static int RC_RESOLVE = 19002;
@@ -371,8 +370,7 @@ public void onConnected(Bundle bundle) {
                 + "\n 2) " + connectionResult.toString()
                 + "\n 3) " + String.valueOf(connectionResult.getErrorCode()));
 
-        if (_tryToResolveError && connectionResult.hasResolution())
-        {
+        if (_tryToResolveError && connectionResult.hasResolution()) {
             mResolvingConnectionFailure = true;
             Log.i(TAG, "onConnectionFailed trying to resolve");
             try {
@@ -381,9 +379,7 @@ public void onConnected(Bundle bundle) {
                 Log.i(TAG, "onConnectionFailed error while resolving");
                 e.printStackTrace();
             }
-        }
-        else
-        {
+        } else {
             Log.i(TAG, "onConnectionFailed wont resolve");
             nativeOnSignInResult(ERR_WONT_RESOLVE);
         }
@@ -420,4 +416,101 @@ public void onConnected(Bundle bundle) {
         }
 
     * */
+
+    public void createTokenTask() {
+        if (_currentUserID.isEmpty()) {
+            Log.e(TAG, "createTokenTask user id is empty!");
+            nativeOnGetToken("");
+            return;
+        }
+
+        Log.i(TAG, "createTokenTask executed");
+        final String scope = "oauth2:" + Scopes.PROFILE;
+        GetTokenTask task = new GetTokenTask(_activity, _currentUserID, scope);
+        task.execute();
+    }
+
+
+    public class GetTokenTask extends AsyncTask<Void, Void, Void> {
+        Activity mActivity;
+        String mScope;
+        String mEmail;
+
+        GetTokenTask(Activity activity, String name, String scope) {
+            this.mActivity = activity;
+            this.mScope = scope;
+            this.mEmail = name;
+        }
+
+        /**
+         * Executes the asynchronous job. This runs when you call execute()
+         * on the AsyncTask instance.
+         */
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                Log.i(TAG, "doInBackground pre fetch");
+                String token = fetchToken();
+                Log.i(TAG, "doInBackground post fetch: " + token);
+                if (token != null) {
+                    // **Insert the good stuff here.**
+                    // Use the token to access the user's Google data.
+                    _currentToken = token;
+                    nativeOnGetToken(token);
+                }
+            } catch (IOException e) {
+                // The fetchToken() method handles Google-specific exceptions,
+                // so this indicates something went wrong at a higher level.
+                // TIP: Check for network connectivity before starting the AsyncTask.
+            }
+            return null;
+        }
+
+        /**
+         * Gets an authentication token from Google and handles any
+         * GoogleAuthException that may occur.
+         */
+        protected String fetchToken() throws IOException {
+            try {
+                return GoogleAuthUtil.getToken(mActivity, mEmail, mScope);
+            } catch (UserRecoverableAuthException userRecoverableException) {
+                // GooglePlayServices.apk is either old, disabled, or not present
+                // so we need to show the user some UI in the activity to recover.
+                Log.i(TAG, " fetchToken userRecoverableException");
+                handleException(userRecoverableException);
+            } catch (GoogleAuthException fatalException) {
+                // Some other type of unrecoverable exception has occurred.
+                // Report and log the error as appropriate for your app.
+                Log.i(TAG, " fetchToken fatalException");
+            }
+            return "";
+        }
+
+
+        public void handleException(final Exception e) {
+            // Because this call comes from the AsyncTask, we must ensure that the following
+            // code instead executes on the UI thread.
+            _activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (e instanceof GooglePlayServicesAvailabilityException) {
+                        // The Google Play services APK is old, disabled, or not present.
+                        // Show a dialog created by Google Play services that allows
+                        // the user to update the APK
+                        Log.i(TAG, "handleException GooglePlayServicesAvailabilityException");
+                        int statusCode = ((GooglePlayServicesAvailabilityException) e).getConnectionStatusCode();
+                        Dialog dialog = GooglePlayServicesUtil.getErrorDialog(statusCode, _activity, AR_REQUEST_TOKEN_RECOVER);
+                        dialog.show();
+                    } else if (e instanceof UserRecoverableAuthException) {
+                        Log.i(TAG, "handleException UserRecoverableAuthException");
+                        // Unable to authenticate, such as when the user has not yet granted
+                        // the app access to the account, but the user can fix this.
+                        // Forward the user to an activity in Google Play services.
+                        Intent intent = ((UserRecoverableAuthException) e).getIntent();
+                        _activity.startActivityForResult(intent, AR_REQUEST_TOKEN_RECOVER);
+                    }
+                }
+            });
+        }
+    }
 }

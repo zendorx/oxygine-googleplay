@@ -189,6 +189,16 @@ namespace googleplay
             OnSignInResult ev(errorCode);
             _dispatcher->dispatchEvent(&ev);
         }
+
+        void onGetTokenResult(const string& token)
+        {
+            if (token.empty())
+                return;
+
+            log::messageln("internal onGetToken: %s", token.c_str());
+            OnGetTokenEvent ev(token);
+            _dispatcher->dispatchEvent(&ev);
+        }
     }
 }
 

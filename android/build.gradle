@@ -23,6 +23,7 @@ dependencies {
     	compile "com.android.support:support-v4:20.0.+"
     	compile "com.google.android.gms:play-services-games:9.8.0"
         compile 'com.google.firebase:firebase-invites:9.8.0'
+        compile 'com.google.android.gms:play-services-auth:9.8.0'
     	//compile "com.google.android.gms:play-services-plus:8.4.0"
     }
 

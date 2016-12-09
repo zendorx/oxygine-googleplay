@@ -35,6 +35,14 @@ namespace googleplay
         int errorCode = 0;
     };
 
+    class OnGetTokenEvent : public Event
+    {
+    public:
+        enum { EVENT = eventID('G', 'P', 'T', 'G')};
+        OnGetTokenEvent(const string& token): Event(EVENT), token(token) {};
+        string token;
+    };
+
     spEventDispatcher dispatcher();
 
     //void doSomething();
@@ -43,5 +51,6 @@ namespace googleplay
     namespace internal
     {
             void onSignInResult(int errorCode);
+            void onGetTokenResult(const string& token);
     }
 };
