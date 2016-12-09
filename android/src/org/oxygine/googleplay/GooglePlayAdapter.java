@@ -43,6 +43,8 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
 
     public static native void nativeOnSignInResult(int errorCode);
 
+    public String _currentUserID = "";
+
     public GooglePlayAdapter(Activity a) {
         _activity = a;
         Log.i(TAG, "GooglePlayAdapter");
@@ -72,12 +74,7 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
 
     public String getUserID()
     {
-        if (isSignedIn())
-        {
-            return Games.getCurrentAccountName(mGoogleApiClient);
-        }
-
-        return "";
+ 		return _currentUserID;
     }
 
     @Override
@@ -112,6 +109,7 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 // User cancelled.
                 Log.i(TAG, "onActivityResult: Got a cancellation result, so disconnecting.");
+                _currentUserID = "";
                 mGoogleApiClient.disconnect();
                 nativeOnSignInResult(ERR_RESULT_CANCELED);
             } else {
@@ -147,6 +145,7 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
         _activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+            	_currentUserID = "";
                 mGoogleApiClient.connect();
             }
         });
@@ -158,6 +157,7 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
         _activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+            	_currentUserID = "";
                 mGoogleApiClient.disconnect();
             }
         });
@@ -343,7 +343,8 @@ public void onConnected(Bundle bundle) {
 
         // The player is signed in. Hide the sign-in button and allow the
         // player to proceed.
-        Log.i(TAG, "onConnected");
+        Log.i(TAG, "onConnected");            
+        _currentUserID = Games.getCurrentAccountName(mGoogleApiClient);
         nativeOnSignInResult(0);
     }
 
@@ -355,6 +356,7 @@ public void onConnected(Bundle bundle) {
     public void onConnectionSuspended(int i) {
         Log.i(TAG, "onConnectionSuspended");
         mGoogleApiClient.connect();
+        _currentUserID = "";
     }
 
     @Override
