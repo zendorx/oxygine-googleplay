@@ -50,10 +50,18 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
 
     public static native void nativeOnSignInResult(int errorCode);
 
-    public static native void nativeOnGetToken(String token);
+    public static native void nativeOnGetToken(String uid, String token);
 
     public String _currentUserID = "";
     public String _currentToken = "";
+    public String _internalUserID = "";
+
+    void _disconected()
+    {
+        _currentUserID = "";
+        _currentToken = "";
+        _internalUserID = "";
+    }
 
     public GooglePlayAdapter(Activity a) {
         _activity = a;
@@ -112,7 +120,7 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
             if (resultCode == Activity.RESULT_OK) {
                 createTokenTask();
             } else {
-                nativeOnGetToken("");
+                nativeOnGetToken("", "");
             }
         }
 
@@ -343,6 +351,8 @@ public void onConnected(Bundle bundle) {
         // player to proceed.
         Log.i(TAG, "onConnected");
         _currentUserID = Games.getCurrentAccountName(mGoogleApiClient);
+        //Log.i(TAG, "Player ID: " + Games.Players.getCurrentPlayer(mGoogleApiClient).getPlayerId());//will return g23923572035723
+
         nativeOnSignInResult(0);
         createTokenTask();
     }
@@ -420,7 +430,7 @@ public void onConnected(Bundle bundle) {
     public void createTokenTask() {
         if (_currentUserID.isEmpty()) {
             Log.e(TAG, "createTokenTask user id is empty!");
-            nativeOnGetToken("");
+            nativeOnGetToken("", "");
             return;
         }
 
@@ -449,14 +459,15 @@ public void onConnected(Bundle bundle) {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                Log.i(TAG, "doInBackground pre fetch");
                 String token = fetchToken();
-                Log.i(TAG, "doInBackground post fetch: " + token);
+
                 if (token != null) {
                     // **Insert the good stuff here.**
                     // Use the token to access the user's Google data.
+
+
                     _currentToken = token;
-                    nativeOnGetToken(token);
+                    nativeOnGetToken(_internalUserID, token);
                 }
             } catch (IOException e) {
                 // The fetchToken() method handles Google-specific exceptions,
@@ -472,6 +483,7 @@ public void onConnected(Bundle bundle) {
          */
         protected String fetchToken() throws IOException {
             try {
+                _internalUserID = GoogleAuthUtil.getAccountId(_activity, _currentUserID);
                 return GoogleAuthUtil.getToken(mActivity, mEmail, mScope);
             } catch (UserRecoverableAuthException userRecoverableException) {
                 // GooglePlayServices.apk is either old, disabled, or not present

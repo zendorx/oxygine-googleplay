@@ -190,13 +190,16 @@ namespace googleplay
             _dispatcher->dispatchEvent(&ev);
         }
 
-        void onGetTokenResult(const string& token)
+        void onGetTokenResult(const string& uid, const string& token)
         {
+            if (uid.empty())
+                return;
+
             if (token.empty())
                 return;
 
-            log::messageln("internal onGetToken: %s", token.c_str());
-            OnGetTokenEvent ev(token);
+            log::messageln("internal onGetToken: %s %s", uid.c_str(), token.c_str());
+            OnGetTokenEvent ev(uid, token);
             _dispatcher->dispatchEvent(&ev);
         }
     }

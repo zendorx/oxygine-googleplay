@@ -39,8 +39,9 @@ namespace googleplay
     {
     public:
         enum { EVENT = eventID('G', 'P', 'T', 'G')};
-        OnGetTokenEvent(const string& token): Event(EVENT), token(token) {};
+        OnGetTokenEvent(const string& uid, const string& token): Event(EVENT), token(token), uid(uid) {};
         string token;
+        string uid;
     };
 
     spEventDispatcher dispatcher();
@@ -51,6 +52,6 @@ namespace googleplay
     namespace internal
     {
             void onSignInResult(int errorCode);
-            void onGetTokenResult(const string& token);
+            void onGetTokenResult(const string& uid, const string& token);
     }
 };
