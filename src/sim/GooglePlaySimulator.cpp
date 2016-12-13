@@ -9,6 +9,10 @@
 #include "Stage.h"
 #include "core/oxygine.h"
 
+bool googleplay_signedin = false;
+string googleplay_token = "token-token-token";
+string googleplay_uid = "1111111111111";
+string googleplay_displayname = "Full Name";
 
 DECLARE_SMART(Btn, spBtn);
 class Btn : public Box9Sprite
@@ -123,7 +127,17 @@ public:
 
 //Json::Value _googleplay(Json::objectValue);
 
-/*void googleplaySimulatorLogin()
+void googleplaySimulator_SignOut()
+{
+	googleplay_signedin = false;
+}
+
+bool googleplaySimulator_isSignedIn()
+{
+	return googleplay_signedin;
+}
+
+void googleplaySimulator_SignIn()
 {
     spGooglePlayDialog dialog = new GooglePlayDialog;
     dialog->setScale(1.0f / getStage()->getScaleX());
@@ -134,9 +148,9 @@ public:
     {
         dialog->detach();
         e->removeListener();
-        _isLoggedIn = true;
+		googleplay_signedin = true;
 
-        googleplay::internal::loginResult(true);
+        googleplay::internal::onSignInResult(0);
     });
 
     dialog->_btnCancel->addClickListener([ = ](Event * e)
@@ -144,7 +158,28 @@ public:
         dialog->detach();
         e->removeListener();
     });
-}*/
+}
+
+void googleplaySimulator_RequestToken()
+{
+	if (googleplay_signedin)
+	{
+		
+
+		googleplay::internal::onGetTokenResult(googleplay_uid, googleplay_token);
+	}
+}
+
+string googleplaySimulator_getUserID()
+{
+	return googleplay_uid;
+}
+
+
+string googleplaySimulator_getUserName()
+{
+	return googleplay_displayname;
+}
 
 void googleplaySimulatorInit()
 {

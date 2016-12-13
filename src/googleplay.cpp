@@ -70,6 +70,8 @@ namespace googleplay
 
 #ifdef __ANDROID__
         jniGooglePlayRequestToken();
+#elif OX_DEBUG
+		googleplaySimulator_RequestToken();
 #endif
     }
 
@@ -82,6 +84,8 @@ namespace googleplay
 
 #ifdef __ANDROID__
         jniGooglePlaySignIn(tryToResolveError);
+#elif OX_DEBUG
+		googleplaySimulator_SignIn();
 #endif
     }
 
@@ -105,6 +109,8 @@ namespace googleplay
 
 #ifdef __ANDROID__
         return jniGooglePlayGetUserName();
+#elif OX_DEBUG
+		return googleplaySimulator_getUserName();
 #endif
 
         return "";
@@ -118,6 +124,8 @@ namespace googleplay
 
 #ifdef __ANDROID__
         return jniGooglePlayGetUserID();
+#elif OX_DEBUG
+		return googleplaySimulator_getUserID();
 #endif 
 
         return "";        
@@ -167,6 +175,8 @@ namespace googleplay
 
 #ifdef __ANDROID__
         jniGooglePlaySignOut();
+#elif OX_DEBUG
+		googleplaySimulator_SignOut();
 #endif
     }
 
@@ -178,6 +188,8 @@ namespace googleplay
 
 #ifdef __ANDROID__
         return jniIsGooglePlaySignedIn();
+#elif OX_DEBUG
+		return googleplaySimulator_isSignedIn();
 #endif
 
         return false;
