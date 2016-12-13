@@ -26,6 +26,7 @@ namespace googleplay
 	void showAchievements();
 
     string getUserID();
+    string getUserName();
 
     class OnSignInResult : public Event
     {

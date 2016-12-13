@@ -85,6 +85,19 @@ namespace googleplay
 #endif        
     }
 
+    string getUserName()
+    {
+#if !GOOGLEPLAY_EXT_ENABLED
+        return "";
+#endif
+
+#ifdef __ANDROID__
+        return jniGooglePlayGetUserName();
+#endif
+
+        return "";
+    }
+
     string getUserID()
     {
 #if !GOOGLEPLAY_EXT_ENABLED

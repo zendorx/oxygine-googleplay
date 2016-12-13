@@ -92,6 +92,11 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
         return _currentUserID;
     }
 
+    public String getUserName()
+    {
+        return Games.Players.getCurrentPlayer(mGoogleApiClient).getDisplayName();
+    }
+
     public String getToken() {
         return _currentToken;
     }

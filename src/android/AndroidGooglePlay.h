@@ -11,6 +11,7 @@ void jniGooglePlaySignIn(bool tryToResolveError);
 bool jniIsGooglePlaySignedIn();
 void jniGooglePlaySignOut();
 
+string jniGooglePlayGetUserName();
 string jniGooglePlayGetUserID();
 bool jniGooglePlayGetTryResolveError();
 

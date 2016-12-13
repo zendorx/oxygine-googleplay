@@ -163,6 +163,31 @@ void jniGooglePlaySignIn(bool tryToResolveError)
     }
 }
 
+string jniGooglePlayGetUserName()
+{
+    if (!isGooglePlayEnabled())
+            return "";
+
+    log::messageln("jniGooglePlayGetUserName called");
+
+    try
+    {
+        JNIEnv* env = jniGetEnv();
+        LOCAL_REF_HOLDER(env);
+        jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "getUserName", "()Ljava/lang/String;");
+        JNI_NOT_NULL(jisMethod);
+        jobject result = env->CallObjectMethod(_jGooglePlayObject, jisMethod);
+        string data = jniGetString(env, (jstring) result);
+        return data;
+    }
+    catch (const notFound&)
+    {
+        log::error("jniGooglePlayGetUserName failed, class/member not found");
+    }
+
+    return "";
+}
+
 string jniGooglePlayGetUserID()
 {
     if (!isGooglePlayEnabled())
