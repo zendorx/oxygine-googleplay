@@ -150,7 +150,10 @@ void googleplaySimulator_SignIn()
         e->removeListener();
 		googleplay_signedin = true;
 
-        googleplay::internal::onSignInResult(0);
+		getStage()->addTween(TweenDummy(), 2500 + rand() % 1000)->addDoneCallback([](Event*ev) {
+			googleplay::internal::onSignInResult(0);
+		});
+        
     });
 
     dialog->_btnCancel->addClickListener([ = ](Event * e)
@@ -165,8 +168,10 @@ void googleplaySimulator_RequestToken()
 	if (googleplay_signedin)
 	{
 		
-
-		googleplay::internal::onGetTokenResult(googleplay_uid, googleplay_token);
+		getStage()->addTween(TweenDummy(), 2500 + rand() % 2000)->addDoneCallback([](Event*ev) {
+			googleplay::internal::onGetTokenResult(googleplay_uid, googleplay_token);
+		});
+		
 	}
 }
 
