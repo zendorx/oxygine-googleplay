@@ -11,6 +11,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.games.Game;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.GamesStatusCodes;
@@ -80,7 +81,7 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
     {
         return Games.getCurrentAccountName(mGoogleApiClient);
     }
-
+    public String getDisplayName() { return Games.Players.getCurrentPlayer(mGoogleApiClient).getDisplayName(); }
     @Override
     public void onConnected(Bundle bundle) {
         nativeOnConnected();
