@@ -349,6 +349,12 @@ public void onConnected(Bundle bundle) {
 
     }
 
+    public void requestToken()
+    {
+        createTokenTask();
+    }
+
+
     @Override
     public void onConnected(Bundle bundle) {
 
@@ -359,7 +365,6 @@ public void onConnected(Bundle bundle) {
         //Log.i(TAG, "Player ID: " + Games.Players.getCurrentPlayer(mGoogleApiClient).getPlayerId());//will return g23923572035723
 
         nativeOnSignInResult(0);
-        createTokenTask();
     }
 
     private static int RC_RESOLVE = 19002;

@@ -16,6 +16,7 @@ namespace googleplay
 
     void signin(bool tryToResolveError);
     void signout();
+    void requestToken();
 
     bool isSignedIn();
 	bool getTryResolveError();

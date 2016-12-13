@@ -268,6 +268,29 @@ bool jniIsGooglePlaySignedIn()
 
 }
 
+
+void jniGooglePlayRequestToken()
+{
+    if (!isGooglePlayEnabled())
+        return;
+
+    log::messageln("jniGooglePlayRequestToken called");
+
+    try
+    {
+        JNIEnv* env = jniGetEnv();
+        LOCAL_REF_HOLDER(env);
+        jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "requestToken", "()V");
+        JNI_NOT_NULL(jisMethod);
+        env->CallVoidMethod(_jGooglePlayObject, jisMethod);
+    }
+    catch (const notFound&)
+    {
+        log::error("jniGooglePlayRequestToken failed, class/member not found");
+    }
+}
+
+
 void jniGooglePlayShowAchievements()
 {
       if (!isGooglePlayEnabled())

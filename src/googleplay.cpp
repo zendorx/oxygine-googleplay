@@ -62,6 +62,18 @@ namespace googleplay
         log::messageln("googleplay::free done");
     }
 
+    void requestToken()
+    {
+#if !GOOGLEPLAY_EXT_ENABLED
+        return;
+#endif
+
+#ifdef __ANDROID__
+        jniGooglePlayRequestToken();
+#endif
+    }
+
+
     void signin(bool tryToResolveError)
     {
 #if !GOOGLEPLAY_EXT_ENABLED

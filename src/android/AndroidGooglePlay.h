@@ -7,6 +7,7 @@ using namespace std;
 void jniGooglePlayInit();
 void jniGooglePlayFree();
 
+void jniGooglePlayRequestToken();
 void jniGooglePlaySignIn(bool tryToResolveError);
 bool jniIsGooglePlaySignedIn();
 void jniGooglePlaySignOut();
