@@ -18,7 +18,7 @@ public class Google extends ActivityObserver {
     private GooglePlayAdapter mGooglePlayAdapter;
     private InterstitialAdapter mInterstitialAdapter;
     private RewardedAdapter mRewardedAdapter;
-
+    private FirebaseAdapter mFirebaseAdapter;
 
     private Activity mActivity;
     private GoogleApiClient mGoogleApiClient;
@@ -83,5 +83,18 @@ public class Google extends ActivityObserver {
 
         mRewardedAdapter = new RewardedAdapter(_activity, mGoogleApiClient, APP_ID);
         return mRewardedAdapter;
+    }
+
+    FirebaseAdapter FirebaseAdapterInit()
+    {
+
+        if (mGoogleApiClient == null)
+        {
+            Log.e(TAG, "FirebaseAdapterInit: mGoogleApiClient is null!");
+            return null;
+        }
+
+        mFirebaseAdapter = new FirebaseAdapter(_activity, mGoogleApiClient);
+        return mFirebaseAdapter;
     }
 }
