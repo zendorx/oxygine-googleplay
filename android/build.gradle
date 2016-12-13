@@ -19,11 +19,15 @@ apply plugin: 'com.android.library'
 dependencies {
         compile(project(':oxygine-extension'))
 
-        //compile "com.android.support:appcompat-v7:20.0.+"
-    	compile "com.android.support:support-v4:20.0.+"
-    	compile "com.google.android.gms:play-services-games:9.8.0"
-        compile 'com.google.firebase:firebase-invites:9.8.0'
-        compile 'com.google.android.gms:play-services-auth:9.8.0'
+        compile "com.android.support:support-v4:25.0.1"
+        compile 'com.google.android.gms:play-services-auth:10.0.1'
+        compile "com.google.android.gms:play-services-games:10.0.1"
+
+        compile 'com.google.firebase:firebase-core:10.0.1'
+
+        compile 'com.google.firebase:firebase-invites:10.0.1'
+        compile 'com.google.firebase:firebase-ads:10.0.1'
+        compile 'com.google.firebase:firebase-messaging:10.0.1'
     	//compile "com.google.android.gms:play-services-plus:8.4.0"
     }
 
