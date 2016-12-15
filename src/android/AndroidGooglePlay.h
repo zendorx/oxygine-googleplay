@@ -4,8 +4,8 @@
 
 using namespace std;
 
-void jniGooglePlayInit();
-void jniGooglePlayFree();
+void jniGoogleInit();
+void jniGoogleFree();
 
 void jniGooglePlaySignIn(bool tryToResolveError);
 bool jniIsGooglePlaySignedIn();
@@ -20,3 +20,9 @@ void jniGooglePlaySyncAchievements(const string& jsonAchievements);
 
 void jniGooglePlaySubmitResult(int score, const string& leaderBoardID);
 void jniGooglePlayShowLeaderboard(const string& leaderBoardID);
+
+
+void jniGoogle_Interstitial_Show();
+void jniGoogle_Interstitial_Load();
+bool jniGoogle_Interstitial_isLoaded();
+bool jniGoogle_Interstitial_isLoading();

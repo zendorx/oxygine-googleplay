@@ -8,10 +8,12 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 
+import org.oxygine.lib.extension.ActivityObserver;
+
 /**
  * Created by qVadro on 12.12.2016.
  */
-public class InterstitialAdapter {
+public class InterstitialAdapter extends ActivityObserver {
 
     public static native void nativeOnAdLoaded();
     public static native void nativeonAdFailedToLoad();

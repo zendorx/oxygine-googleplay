@@ -5,12 +5,10 @@ import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 
-import org.oxygine.lib.extension.ActivityObserver;
-
 /**
  * Created by qVadro on 12.12.2016.
  */
-public class Google extends ActivityObserver {
+public class Google {
 
     private static String TAG = "Oxygine - Google";
 
@@ -43,7 +41,7 @@ public class Google extends ActivityObserver {
         mGoogleApiClient = googleApiClient;
     }
 
-    GooglePlayAdapter googlePlayAdapterInit()
+    public GooglePlayAdapter googlePlayAdapterInit()
     {
         if (mGoogleApiClient == null)
         {
@@ -55,7 +53,7 @@ public class Google extends ActivityObserver {
         return mGooglePlayAdapter;
     }
 
-    AuthAdapter authAdapterInit()
+    public AuthAdapter authAdapterInit()
     {
         if (mGoogleApiClient == null)
         {
@@ -67,13 +65,13 @@ public class Google extends ActivityObserver {
         return mAuthAdapter;
     }
 
-    InterstitialAdapter interstitialAdapterInit(String AD_UNIT)
+    public InterstitialAdapter interstitialAdapterInit(String AD_UNIT)
     {
-        mInterstitialAdapter = new InterstitialAdapter(_activity, AD_UNIT);
+        mInterstitialAdapter = new InterstitialAdapter(mActivity, AD_UNIT);
         return mInterstitialAdapter;
     }
 
-    RewardedAdapter rewardedAdapterInit(String APP_ID)
+    public RewardedAdapter rewardedAdapterInit(String APP_ID)
     {
         if (mGoogleApiClient == null)
         {
@@ -81,11 +79,11 @@ public class Google extends ActivityObserver {
             return null;
         }
 
-        mRewardedAdapter = new RewardedAdapter(_activity, mGoogleApiClient, APP_ID);
+        mRewardedAdapter = new RewardedAdapter(mActivity, mGoogleApiClient, APP_ID);
         return mRewardedAdapter;
     }
 
-    FirebaseAdapter FirebaseAdapterInit()
+    public FirebaseAdapter FirebaseAdapterInit()
     {
 
         if (mGoogleApiClient == null)
@@ -94,7 +92,7 @@ public class Google extends ActivityObserver {
             return null;
         }
 
-        mFirebaseAdapter = new FirebaseAdapter(_activity, mGoogleApiClient);
+        mFirebaseAdapter = new FirebaseAdapter(mActivity, mGoogleApiClient);
         return mFirebaseAdapter;
     }
 }

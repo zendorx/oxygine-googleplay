@@ -11,9 +11,9 @@
 
 
 
-#define GOOGLEPLAY_EXT_ENABLED 1
+#define GOOGLE_EXT_ENABLED 1
 
-namespace googleplay
+namespace google
 {
 
     spEventDispatcher _dispatcher;
@@ -35,7 +35,7 @@ namespace googleplay
         _dispatcher = new EventDispatcher;
 
 #ifdef __ANDROID__
-        jniGooglePlayInit();
+		jniGoogleInit();
 #elif TARGET_OS_IPHONE
 
 #else
@@ -55,12 +55,80 @@ namespace googleplay
         OX_ASSERT(_dispatcher);
 
 #ifdef __ANDROID__
-        jniGooglePlayFree();
+        jniGoogleFree();
 #endif
         _dispatcher->removeAllEventListeners();
         _dispatcher = 0;
         log::messageln("googleplay::free done");
     }
+
+
+	namespace interstitial
+	{
+		void load()
+		{
+#if !GOOGLE_EXT_ENABLED
+			return;
+#endif
+
+#ifdef __ANDROID__
+			jniGoogle_Interstitial_Load();
+#endif 
+		}
+
+		void show()
+		{
+#if !GOOGLE_EXT_ENABLED
+			return;
+#endif
+
+#ifdef __ANDROID__
+			jniGoogle_Interstitial_Show();
+#endif 
+		}
+
+		bool isLoaded()
+		{
+#if !GOOGLE_EXT_ENABLED
+			return;
+#endif
+
+#ifdef __ANDROID__
+		    return	jniGoogle_Interstitial_isLoaded();
+#endif 
+			return false;
+		}
+
+		bool isLoading()
+		{
+#if !GOOGLE_EXT_ENABLED
+			return;
+#endif
+
+#ifdef __ANDROID__
+			return	jniGoogle_Interstitial_isLoading();
+#endif 
+			return false;
+		}
+
+
+	}//Interstitial
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     void signin(bool tryToResolveError)
     {
@@ -160,8 +228,8 @@ namespace googleplay
 
 	void syncAchievements(const string& jsonAchievs)
 	{
-#if !GOOGLEPLAY_EXT_ENABLED
-		return false;
+#if !GOOGLE_EXT_ENABLED
+		return;
 #endif
 
 #ifdef __ANDROID__
@@ -180,28 +248,5 @@ namespace googleplay
 #endif
         
     }*/
-
-
-    namespace internal
-    {
-        void onSignInResult(int errorCode)
-        {
-            OnSignInResult ev(errorCode);
-            _dispatcher->dispatchEvent(&ev);
-        }
-
-        void onGetTokenResult(const string& uid, const string& token)
-        {
-            if (uid.empty())
-                return;
-
-            if (token.empty())
-                return;
-
-            log::messageln("internal onGetToken: %s %s", uid.c_str(), token.c_str());
-            OnGetTokenEvent ev(uid, token);
-            _dispatcher->dispatchEvent(&ev);
-        }
-    }
 }
 

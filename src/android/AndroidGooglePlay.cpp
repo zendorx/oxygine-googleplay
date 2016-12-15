@@ -13,18 +13,53 @@
 
 using namespace oxygine;
 
-jclass _jGooglePlayClass = 0;
-jobject _jGooglePlayObject = 0;
+jclass _jGoogleClass = 0;
+jobject _jGoogleObject = 0;
 
-bool isGooglePlayEnabled()
+jclass _jGoogleAdmobClass = 0;
+jobject _jGoogleAdmobObject = 0;
+
+bool isGoogleAdmobEnabled()
 {
-    return _jGooglePlayClass && _jGooglePlayObject;
+	return _jGoogleAdmobClass && _jGoogleAdmobObject;
+}
+
+bool isGoogleEnabled()
+{
+    return _jGoogleClass && _jGoogleObject;
 }
 
 
 extern "C"
 {
-    JNIEXPORT void JNICALL Java_org_oxygine_googleplay_GooglePlayAdapter_nativeOnGetToken(JNIEnv* env, jobject obj,jstring uid, jstring token)
+	JNIEXPORT void JNICALL Java_org_oxygine_googleplay_InterstitialAdapter_nativeOnAdLoaded(JNIEnv* env, jobject obj)
+	{
+		core::getMainThreadDispatcher().postCallback([=]()
+		{
+			google::interstitial::OnAdLoaded ev;
+			google::dispatcher()->dispatchEvent(&ev);
+		});
+	}
+
+	JNIEXPORT void JNICALL Java_org_oxygine_googleplay_InterstitialAdapter_nativeonAdFailedToLoad(JNIEnv* env, jobject obj)
+	{
+		core::getMainThreadDispatcher().postCallback([=]()
+		{
+			google::interstitial::OnAdFailedToLoad ev;
+			google::dispatcher()->dispatchEvent(&ev);
+		});
+	}
+
+	JNIEXPORT void JNICALL Java_org_oxygine_googleplay_InterstitialAdapter_nativeonOnAdClosed(JNIEnv* env, jobject obj)
+	{
+		core::getMainThreadDispatcher().postCallback([=]()
+		{
+			google::interstitial::OnAdClosed ev;
+			google::dispatcher()->dispatchEvent(&ev);
+		});
+	}
+
+   /* JNIEXPORT void JNICALL Java_org_oxygine_googleplay_GooglePlayAdapter_nativeOnGetToken(JNIEnv* env, jobject obj,jstring uid, jstring token)
     {
         string token_c = jniGetString(env, token);
         string uid_c = jniGetString(env, uid);
@@ -42,28 +77,35 @@ extern "C"
         {
             googleplay::internal::onSignInResult(error);
         });
-    }
+    }*/
 
 
 }
 
 
-void jniGooglePlayInit()
+void jniGoogleInit()
 {
     try
     {
         JNIEnv* env = jniGetEnv();
         LOCAL_REF_HOLDER(env);
         JNI_NOT_NULL(env);
+		
+		_jGoogleAdmobClass = env->FindClass("org/oxygine/googleplay/InterstitialAdapter");
+		JNI_NOT_NULL(_jGoogleAdmobClass);
 
-        _jGooglePlayClass = env->FindClass("org/oxygine/googleplay/GooglePlayAdapter");
-        JNI_NOT_NULL(_jGooglePlayClass);
+		_jGoogleAdmobObject = env->NewGlobalRef(jniFindExtension(env, _jGoogleAdmobClass));
+		JNI_NOT_NULL(_jGoogleAdmobObject);
 
-        _jGooglePlayClass = (jclass) env->NewGlobalRef(_jGooglePlayClass);
-        JNI_NOT_NULL(_jGooglePlayClass);
 
-        _jGooglePlayObject = env->NewGlobalRef(jniFindExtension(env, _jGooglePlayClass));
-        JNI_NOT_NULL(_jGooglePlayObject);
+        /*_jGoogleClass = env->FindClass("org/oxygine/googleplay/GooglePlayAdapter");
+        JNI_NOT_NULL(_jGoogleClass);
+
+        _jGoogleClass = (jclass) env->NewGlobalRef(_jGoogleClass);
+        JNI_NOT_NULL(_jGoogleClass);
+
+        _jGoogleObject = env->NewGlobalRef(jniFindExtension(env, _jGoogleClass));
+        JNI_NOT_NULL(_jGoogleObject);*/
     }
     catch (const notFound&)
     {
@@ -71,33 +113,136 @@ void jniGooglePlayInit()
     }
 }
 
-void jniGooglePlayFree()
+void jniGoogleFree()
 {
-    if (!isGooglePlayEnabled())
+    if (!isGoogleEnabled())
         return;
 
-	
-
-    try
+	try
     {
         JNIEnv* env = jniGetEnv();
         LOCAL_REF_HOLDER(env);
 
-        env->DeleteGlobalRef(_jGooglePlayClass);
-        _jGooglePlayClass = 0;
+        env->DeleteGlobalRef(_jGoogleClass);
+        _jGoogleClass = 0;
 
-        env->DeleteGlobalRef(_jGooglePlayObject);
-        _jGooglePlayObject = 0;
+        env->DeleteGlobalRef(_jGoogleObject);
+        _jGoogleObject = 0;
     }
     catch (const notFound&)
     {
 
     }
 }
+/* /// INTERSTITIAL */
+
+void jniGoogle_Interstitial_Show()
+{
+	if (!isGoogleAdmobEnabled())
+		return;
+
+	log::messageln("jniGoogle_Admob_Show called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+		jmethodID jisMethod = env->GetMethodID(_jGoogleAdmobClass, "show", "()V");
+		JNI_NOT_NULL(jisMethod);
+		env->CallVoidMethod(_jGoogleAdmobObject, jisMethod);
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Admob_Show failed, class/member not found");
+	}
+}
+
+void jniGoogle_Interstitial_Load()
+{
+	if (!isGoogleAdmobEnabled())
+		return;
+
+	log::messageln("jniGoogle_Interstitial_Load called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+		jmethodID jisMethod = env->GetMethodID(_jGoogleAdmobClass, "load", "()V");
+		JNI_NOT_NULL(jisMethod);
+		env->CallVoidMethod(_jGoogleAdmobObject, jisMethod);
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Interstitial_Load failed, class/member not found");
+	}
+}
+
+bool jniGoogle_Interstitial_isLoaded()
+{
+	if (!isGoogleEnabled())
+		return false;
+
+	log::messageln("jniGoogle_Interstitial_isLoaded called");
+
+	bool result = false;
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+		jmethodID jisMethod = env->GetMethodID(_jGoogleAdmobClass, "isLoaded", "()Z");
+		JNI_NOT_NULL(jisMethod);
+		jboolean jb = env->CallBooleanMethod(_jGoogleAdmobObject, jisMethod);
+		result = (bool)jb;
+
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Interstitial_isLoaded failed, class/member not found");
+	}
+
+	return result;
+}
+
+bool jniGoogle_Interstitial_isLoading()
+{
+	if (!isGoogleEnabled())
+		return false;
+
+	log::messageln("jniGoogle_Interstitial_isLoading called");
+
+	bool result = false;
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+		jmethodID jisMethod = env->GetMethodID(_jGoogleAdmobClass, "isLoading", "()Z");
+		JNI_NOT_NULL(jisMethod);
+		jboolean jb = env->CallBooleanMethod(_jGoogleAdmobObject, jisMethod);
+		result = (bool)jb;
+
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Interstitial_isLoading failed, class/member not found");
+	}
+
+	return result;
+}
+
+/* INTERSTITIAL ////*/
+
+
+
+
+
+
+
+
 
 void jniGooglePlaySyncAchievements(const string& jsonAchievements)
 {
-    if (!isGooglePlayEnabled())
+    if (!isGoogleEnabled())
             return;
 
     log::messageln("jniGooglePlaySyncAchievements called");
@@ -107,9 +252,9 @@ void jniGooglePlaySyncAchievements(const string& jsonAchievements)
         JNIEnv* env = jniGetEnv();
         LOCAL_REF_HOLDER(env);
         jstring jachs = env->NewStringUTF(jsonAchievements.c_str());
-        jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "syncAchievements", "(Ljava/lang/String;)V");
+        jmethodID jisMethod = env->GetMethodID(_jGoogleClass, "syncAchievements", "(Ljava/lang/String;)V");
         JNI_NOT_NULL(jisMethod);
-        env->CallVoidMethod(_jGooglePlayObject, jisMethod, jachs);
+        env->CallVoidMethod(_jGoogleObject, jisMethod, jachs);
     }
     catch (const notFound&)
     {
@@ -119,7 +264,7 @@ void jniGooglePlaySyncAchievements(const string& jsonAchievements)
 
 void jniGooglePlaySubmitResult(int score, const string& leaderBoardID)
 {
-    if (!isGooglePlayEnabled())
+    if (!isGoogleEnabled())
             return;
 
     log::messageln("jniGooglePlaySubmitResult called");
@@ -129,9 +274,9 @@ void jniGooglePlaySubmitResult(int score, const string& leaderBoardID)
         JNIEnv* env = jniGetEnv();
         LOCAL_REF_HOLDER(env);
         jstring jlbID = env->NewStringUTF(leaderBoardID.c_str());
-        jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "submitScore", "(ILjava/lang/String;)V");
+        jmethodID jisMethod = env->GetMethodID(_jGoogleClass, "submitScore", "(ILjava/lang/String;)V");
         JNI_NOT_NULL(jisMethod);
-        env->CallVoidMethod(_jGooglePlayObject, jisMethod, score, jlbID);
+        env->CallVoidMethod(_jGoogleObject, jisMethod, score, jlbID);
     }
     catch (const notFound&)
     {
@@ -142,7 +287,7 @@ void jniGooglePlaySubmitResult(int score, const string& leaderBoardID)
 
 void jniGooglePlaySignIn(bool tryToResolveError)
 {
-    if (!isGooglePlayEnabled())
+    if (!isGoogleEnabled())
             return;
 
 	log::messageln("jniGooglePlaySignIn called");
@@ -152,10 +297,10 @@ void jniGooglePlaySignIn(bool tryToResolveError)
         JNIEnv* env = jniGetEnv();
         LOCAL_REF_HOLDER(env);
         //jstring jappLinkUrl = env->NewStringUTF(appLinkUrl.c_str()); //to jstring example
-        jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "signin", "(Z)V");
+        jmethodID jisMethod = env->GetMethodID(_jGoogleClass, "signin", "(Z)V");
         JNI_NOT_NULL(jisMethod);
         //string data = jniGetString(env, (jstring) obj); //string example
-        env->CallVoidMethod(_jGooglePlayObject, jisMethod, tryToResolveError);
+        env->CallVoidMethod(_jGoogleObject, jisMethod, tryToResolveError);
     }
     catch (const notFound&)
     {
@@ -165,7 +310,7 @@ void jniGooglePlaySignIn(bool tryToResolveError)
 
 string jniGooglePlayGetUserID()
 {
-    if (!isGooglePlayEnabled())
+    if (!isGoogleEnabled())
             return "";
 
     log::messageln("jniGooglePlayGetUserID called");
@@ -174,9 +319,9 @@ string jniGooglePlayGetUserID()
     {
         JNIEnv* env = jniGetEnv();
         LOCAL_REF_HOLDER(env);
-        jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "getUserID", "()Ljava/lang/String;");
+        jmethodID jisMethod = env->GetMethodID(_jGoogleClass, "getUserID", "()Ljava/lang/String;");
         JNI_NOT_NULL(jisMethod);
-        jobject result = env->CallObjectMethod(_jGooglePlayObject, jisMethod);
+        jobject result = env->CallObjectMethod(_jGoogleObject, jisMethod);
         string data = jniGetString(env, (jstring) result);
         return data;
     }
@@ -190,7 +335,7 @@ string jniGooglePlayGetUserID()
 
 bool jniGooglePlayGetTryResolveError()
 {
-    if (!isGooglePlayEnabled())
+    if (!isGoogleEnabled())
         return false;
 
     log::messageln("jniGooglePlayGetTryResolveError called");
@@ -200,9 +345,9 @@ bool jniGooglePlayGetTryResolveError()
     {
         JNIEnv* env = jniGetEnv();
         LOCAL_REF_HOLDER(env);
-        jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "getTryResolveError", "()Z");
+        jmethodID jisMethod = env->GetMethodID(_jGoogleClass, "getTryResolveError", "()Z");
         JNI_NOT_NULL(jisMethod);
-        jboolean jb = env->CallBooleanMethod(_jGooglePlayObject, jisMethod);
+        jboolean jb = env->CallBooleanMethod(_jGoogleObject, jisMethod);
         result = (bool) jb;
 
     }
@@ -216,7 +361,7 @@ bool jniGooglePlayGetTryResolveError()
 
 bool jniIsGooglePlaySignedIn()
 {
-    if (!isGooglePlayEnabled())
+    if (!isGoogleEnabled())
         return false;
 
 	log::messageln("jniIsGooglePlaySignedIn called");
@@ -227,10 +372,10 @@ bool jniIsGooglePlaySignedIn()
         JNIEnv* env = jniGetEnv();
         LOCAL_REF_HOLDER(env);
         //jstring jappLinkUrl = env->NewStringUTF(appLinkUrl.c_str()); //to jstring example
-        jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "isSignedIn", "()Z");
+        jmethodID jisMethod = env->GetMethodID(_jGoogleClass, "isSignedIn", "()Z");
         JNI_NOT_NULL(jisMethod);
         //string data = jniGetString(env, (jstring) obj); //string example
-        jboolean jb = env->CallBooleanMethod(_jGooglePlayObject, jisMethod);
+        jboolean jb = env->CallBooleanMethod(_jGoogleObject, jisMethod);
         result = (bool) jb;
 
     }
@@ -245,7 +390,7 @@ bool jniIsGooglePlaySignedIn()
 
 void jniGooglePlayShowAchievements()
 {
-      if (!isGooglePlayEnabled())
+      if (!isGoogleEnabled())
         return;
 
     log::messageln("jniGooglePlayShowAchievements called");
@@ -254,9 +399,9 @@ void jniGooglePlayShowAchievements()
     {
         JNIEnv* env = jniGetEnv();
         LOCAL_REF_HOLDER(env);
-        jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "showAchievements", "()V");
+        jmethodID jisMethod = env->GetMethodID(_jGoogleClass, "showAchievements", "()V");
         JNI_NOT_NULL(jisMethod);
-        env->CallVoidMethod(_jGooglePlayObject, jisMethod);
+        env->CallVoidMethod(_jGoogleObject, jisMethod);
     }
     catch (const notFound&)
     {
@@ -266,7 +411,7 @@ void jniGooglePlayShowAchievements()
 
 void jniGooglePlayShowLeaderboard(const string& leaderBoardID)
 {
-     if (!isGooglePlayEnabled())
+     if (!isGoogleEnabled())
         return;
 
     log::messageln("jniGooglePlayShowLeaderboard called");
@@ -276,9 +421,9 @@ void jniGooglePlayShowLeaderboard(const string& leaderBoardID)
         JNIEnv* env = jniGetEnv();
         LOCAL_REF_HOLDER(env);
         jstring jldID = env->NewStringUTF(leaderBoardID.c_str());
-        jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "showLeaderBoard", "(Ljava/lang/String;)V");
+        jmethodID jisMethod = env->GetMethodID(_jGoogleClass, "showLeaderBoard", "(Ljava/lang/String;)V");
         JNI_NOT_NULL(jisMethod);
-        env->CallVoidMethod(_jGooglePlayObject, jisMethod, jldID);
+        env->CallVoidMethod(_jGoogleObject, jisMethod, jldID);
     }
     catch (const notFound&)
     {
@@ -288,7 +433,7 @@ void jniGooglePlayShowLeaderboard(const string& leaderBoardID)
 
 void jniGooglePlaySignOut()
 {
-    if (!isGooglePlayEnabled())
+    if (!isGoogleEnabled())
         return;
 	
 	log::messageln("jniGooglePlaySignOut called");
@@ -298,10 +443,10 @@ void jniGooglePlaySignOut()
         JNIEnv* env = jniGetEnv();
         LOCAL_REF_HOLDER(env);
         //jstring jappLinkUrl = env->NewStringUTF(appLinkUrl.c_str()); //to jstring example
-        jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "signout", "()V");
+        jmethodID jisMethod = env->GetMethodID(_jGoogleClass, "signout", "()V");
         JNI_NOT_NULL(jisMethod);
         //string data = jniGetString(env, (jstring) obj); //string example
-        env->CallVoidMethod(_jGooglePlayObject, jisMethod);
+        env->CallVoidMethod(_jGoogleObject, jisMethod);
 
     }
     catch (const notFound&)

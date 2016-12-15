@@ -9,9 +9,31 @@
 using namespace std;
 using namespace oxygine;
 
-namespace googleplay
+namespace google
 {
-    void init();
+	void init();
+	void free();
+
+	spEventDispatcher dispatcher();
+
+	namespace interstitial
+	{
+		class OnAdLoaded : public Event
+		{ public:	enum { EVENT = eventID('G', 'I', 'A', 'L') }; OnAdLoaded() : Event(EVENT) {}; };
+		
+		class OnAdFailedToLoad : public Event
+		{ public:	enum { EVENT = eventID('G', 'I', 'A', 'À') }; OnAdFailedToLoad() : Event(EVENT) {}; };
+
+		class OnAdClosed : public Event
+		{ public:	enum { EVENT = eventID('G', 'I', 'A', 'C') }; OnAdClosed() : Event(EVENT) {};	};
+
+		void load();
+		void show();
+		bool isLoaded();
+		bool isLoading();
+	}
+
+    /*void init();
     void free();
 
     void signin(bool tryToResolveError);
@@ -53,5 +75,5 @@ namespace googleplay
     {
             void onSignInResult(int errorCode);
             void onGetTokenResult(const string& uid, const string& token);
-    }
+    }*/
 };
