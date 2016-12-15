@@ -7,6 +7,31 @@
 
 
       <application>
+            <!-- Admob Activity! -->
+            <activity android:name="com.google.android.gms.ads.AdActivity"
+                android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
+
+
+            <!-- Charboost Activity! -->
+            <activity
+                android:name="com.chartboost.sdk.CBImpressionActivity"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:excludeFromRecents="true"
+                android:hardwareAccelerated="true"
+                android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"/>
+
+            <!-- AdColony Activity! -->
+            <activity android:name="com.jirbo.adcolony.AdColonyOverlay"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
+
+            <activity android:name="com.jirbo.adcolony.AdColonyFullscreen"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
+
+            <activity android:name="com.jirbo.adcolony.AdColonyBrowser"
+                android:configChanges="keyboardHidden|orientation|screenSize"
+                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
 
       </application>
 
@@ -14,4 +39,5 @@
       <uses-permission android:name="android.permission.GET_ACCOUNTS" />
       <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
       <uses-permission android:name="android.permission.WAKE_LOCK" />
+      <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /><!--  adcolony-->
 </manifest>

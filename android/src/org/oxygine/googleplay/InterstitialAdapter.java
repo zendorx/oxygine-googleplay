@@ -1,9 +1,8 @@
 package org.oxygine.googleplay;
 
 import android.app.Activity;
-import android.os.Bundle;
-import android.util.Log;
 
+import com.chartboost.sdk.Chartboost;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
@@ -85,4 +84,41 @@ public class InterstitialAdapter extends ActivityObserver {
     {
         return mInterstitialAd.isLoading();
     }
+
+    @Override
+    public void onStart()
+    {
+        Chartboost.onStart(_activity);
+    }
+
+    @Override
+    public void onResume()
+    {
+        Chartboost.onResume(_activity);
+    }
+
+    @Override
+    public void onPause() {
+        Chartboost.onPause(_activity);
+    }
+
+    @Override
+    public void onStop() {
+        Chartboost.onStop(_activity);
+    }
+
+    @Override
+    public void onDestroy() {
+        Chartboost.onDestroy(_activity);
+    }
+
+    @Override
+    public boolean onBackPressed()
+    {
+        if (Chartboost.onBackPressed())
+            return false;
+
+        return true;
+    }
+
 }
