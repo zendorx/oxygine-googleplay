@@ -11,7 +11,29 @@ using namespace oxygine;
 
 namespace googleplay
 {
-    void init();
+	void init();
+	void free();
+
+
+	namespace admob
+	{
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*void init();
     void free();
 
     void signin(bool tryToResolveError);
@@ -55,5 +77,5 @@ namespace googleplay
     {
             void onSignInResult(int errorCode);
             void onGetTokenResult(const string& uid, const string& token);
-    }
+    }*/
 };
