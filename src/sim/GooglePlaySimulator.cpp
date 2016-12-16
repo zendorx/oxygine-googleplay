@@ -8,7 +8,7 @@
 #include "res/Resources.h"
 #include "Stage.h"
 #include "core/oxygine.h"
-
+#include "EventDispatcher.h"
 
 DECLARE_SMART(Btn, spBtn);
 class Btn : public Box9Sprite
@@ -119,6 +119,75 @@ public:
     spBtn               _btnOk;
     spBtn               _btnCancel;
 };
+
+bool _googlePlaySimulator_Interstitital_isLoaded = false;
+
+void googlePlaySimulator_Interstitial_Show()
+{
+	spGooglePlayDialog dialog = new GooglePlayDialog;
+	dialog->setScale(1.0f / getStage()->getScaleX());
+	dialog->setSize(500, 300);
+	getStage()->addChild(dialog);
+
+	dialog->_btnOk->addClickListener([=](Event * e)
+	{
+		dialog->detach();
+		_googlePlaySimulator_Interstitital_isLoaded = false;
+		google::interstitial::OnAdClosed ev;
+		google::dispatcher()->dispatchEvent(&ev);
+	});
+
+	dialog->_btnCancel->setVisible(false);
+}
+
+void googlePlaySimulator_Interstitial_Load()
+{
+	getStage()->addTween(TweenDummy(), 5000 + rand() % 5000)->setDoneCallback([](Event *ev) {
+		_googlePlaySimulator_Interstitital_isLoaded = true;
+		google::interstitial::OnAdLoaded event;
+		google::dispatcher()->dispatchEvent(&event);
+	});
+}
+
+bool googlePlaySimulator_Interstitial_isLoaded()
+{
+	return _googlePlaySimulator_Interstitital_isLoaded;
+}
+
+bool _googlePlaySimulator_Rewarded_isLoaded = false;
+
+void googlePlaySimulator_Rewarded_Show()
+{
+	spGooglePlayDialog dialog = new GooglePlayDialog;
+	dialog->setScale(1.0f / getStage()->getScaleX());
+	dialog->setSize(500, 300);
+	getStage()->addChild(dialog);
+
+	dialog->_btnOk->addClickListener([=](Event * e)
+	{
+		dialog->detach();
+		_googlePlaySimulator_Rewarded_isLoaded = false;
+		google::rewarded::OnRewarded ev;
+		google::dispatcher()->dispatchEvent(&ev);
+	});
+
+	dialog->_btnCancel->addClickListener([=](Event * e)
+	{
+		_googlePlaySimulator_Rewarded_isLoaded = false;
+		dialog->detach();
+		google::rewarded::OnRewardedVideoAdClosed ev;
+		google::dispatcher()->dispatchEvent(&ev);
+	});
+}
+
+void googlePlaySimulator_Rewarded_Load()
+{
+	getStage()->addTween(TweenDummy(), 5000 + rand() % 5000)->setDoneCallback([](Event *ev) {
+		_googlePlaySimulator_Rewarded_isLoaded = true;
+		google::rewarded::OnRewardVideoLoaded event;
+		google::dispatcher()->dispatchEvent(&event);
+	});
+}
 
 
 //Json::Value _googleplay(Json::objectValue);

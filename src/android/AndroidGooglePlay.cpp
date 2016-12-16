@@ -16,12 +16,20 @@ using namespace oxygine;
 jclass _jGoogleClass = 0;
 jobject _jGoogleObject = 0;
 
-jclass _jGoogleAdmobClass = 0;
-jobject _jGoogleAdmobObject = 0;
+jclass _jGoogleInterstitialClass = 0;
+jobject _jGoogleInterstitialObject = 0;
 
-bool isGoogleAdmobEnabled()
+jclass _jGoogleRewardedClass = 0;
+jobject _jGoogleRewardedObject = 0;
+
+bool isGoogleInterstitialEnabled()
 {
-	return _jGoogleAdmobClass && _jGoogleAdmobObject;
+	return _jGoogleInterstitialClass && _jGoogleInterstitialObject;
+}
+
+bool isGoogleRewardedEnabled()
+{
+	return _jGoogleRewardedClass && _jGoogleRewardedObject;
 }
 
 bool isGoogleEnabled()
@@ -32,6 +40,7 @@ bool isGoogleEnabled()
 
 extern "C"
 {
+	/* Interstitial */
 	JNIEXPORT void JNICALL Java_org_oxygine_googleplay_InterstitialAdapter_nativeOnAdLoaded(JNIEnv* env, jobject obj)
 	{
 		core::getMainThreadDispatcher().postCallback([=]()
@@ -58,6 +67,47 @@ extern "C"
 			google::dispatcher()->dispatchEvent(&ev);
 		});
 	}
+
+	/* Rewarded */
+	JNIEXPORT void JNICALL Java_org_oxygine_googleplay_RewardedAdapter_nativeOnRewardVideoLoaded(JNIEnv* env, jobject obj)
+	{
+		core::getMainThreadDispatcher().postCallback([=]()
+		{
+			google::rewarded::OnRewardVideoLoaded ev;
+			google::dispatcher()->dispatchEvent(&ev);
+		});
+	}
+
+	JNIEXPORT void JNICALL Java_org_oxygine_googleplay_RewardedAdapter_nativeOnRewardedVideoAdClosed(JNIEnv* env, jobject obj)
+	{
+		core::getMainThreadDispatcher().postCallback([=]()
+		{
+			google::rewarded::OnRewardedVideoAdClosed ev;
+			google::dispatcher()->dispatchEvent(&ev);
+		});
+	}
+
+	JNIEXPORT void JNICALL Java_org_oxygine_googleplay_RewardedAdapter_nativeOnRewarded(JNIEnv* env, jobject obj)
+	{
+		core::getMainThreadDispatcher().postCallback([=]()
+		{
+			google::rewarded::OnRewarded ev;
+			google::dispatcher()->dispatchEvent(&ev);
+		});
+	}
+
+	JNIEXPORT void JNICALL Java_org_oxygine_googleplay_RewardedAdapter_nativeOnRewardedVideoAdFailedToLoad(JNIEnv* env, jobject obj)
+	{
+		core::getMainThreadDispatcher().postCallback([=]()
+		{
+			google::rewarded::OnRewardedVideoAdFailedToLoad ev;
+			google::dispatcher()->dispatchEvent(&ev);
+		});
+	}
+
+
+
+
 
    /* JNIEXPORT void JNICALL Java_org_oxygine_googleplay_GooglePlayAdapter_nativeOnGetToken(JNIEnv* env, jobject obj,jstring uid, jstring token)
     {
@@ -91,11 +141,19 @@ void jniGoogleInit()
         LOCAL_REF_HOLDER(env);
         JNI_NOT_NULL(env);
 		
-		_jGoogleAdmobClass = (jclass)env->NewGlobalRef( env->FindClass("org/oxygine/googleplay/InterstitialAdapter") );
-		JNI_NOT_NULL(_jGoogleAdmobClass);
+		_jGoogleInterstitialClass = (jclass)env->NewGlobalRef( env->FindClass("org/oxygine/googleplay/InterstitialAdapter") );
+		JNI_NOT_NULL(_jGoogleInterstitialClass);
 
-		_jGoogleAdmobObject = env->NewGlobalRef(jniFindExtension(env, _jGoogleAdmobClass));
-		JNI_NOT_NULL(_jGoogleAdmobObject);
+		_jGoogleInterstitialObject = env->NewGlobalRef(jniFindExtension(env, _jGoogleInterstitialClass));
+		JNI_NOT_NULL(_jGoogleInterstitialObject);
+
+
+
+		_jGoogleRewardedClass = (jclass)env->NewGlobalRef(env->FindClass("org/oxygine/googleplay/RewardedAdapter"));
+		JNI_NOT_NULL(_jGoogleRewardedClass);
+
+		_jGoogleRewardedObject = env->NewGlobalRef(jniFindExtension(env, _jGoogleRewardedClass));
+		JNI_NOT_NULL(_jGoogleRewardedObject);
 
 
         /*_jGoogleClass = env->FindClass("org/oxygine/googleplay/GooglePlayAdapter");
@@ -138,7 +196,7 @@ void jniGoogleFree()
 
 void jniGoogle_Interstitial_Show()
 {
-	if (!isGoogleAdmobEnabled())
+	if (!isGoogleInterstitialEnabled())
 		return;
 
 	log::messageln("jniGoogle_Admob_Show called");
@@ -147,9 +205,9 @@ void jniGoogle_Interstitial_Show()
 	{
 		JNIEnv* env = jniGetEnv();
 		LOCAL_REF_HOLDER(env);
-		jmethodID jisMethod = env->GetMethodID(_jGoogleAdmobClass, "show", "()V");
+		jmethodID jisMethod = env->GetMethodID(_jGoogleInterstitialClass, "show", "()V");
 		JNI_NOT_NULL(jisMethod);
-		env->CallVoidMethod(_jGoogleAdmobObject, jisMethod);
+		env->CallVoidMethod(_jGoogleInterstitialObject, jisMethod);
 	}
 	catch (const notFound&)
 	{
@@ -159,7 +217,7 @@ void jniGoogle_Interstitial_Show()
 
 void jniGoogle_Interstitial_Load()
 {
-	if (!isGoogleAdmobEnabled())
+	if (!isGoogleInterstitialEnabled())
 		return;
 
 	log::messageln("jniGoogle_Interstitial_Load called");
@@ -168,9 +226,9 @@ void jniGoogle_Interstitial_Load()
 	{
 		JNIEnv* env = jniGetEnv();
 		LOCAL_REF_HOLDER(env);
-		jmethodID jisMethod = env->GetMethodID(_jGoogleAdmobClass, "load", "()V");
+		jmethodID jisMethod = env->GetMethodID(_jGoogleInterstitialClass, "load", "()V");
 		JNI_NOT_NULL(jisMethod);
-		env->CallVoidMethod(_jGoogleAdmobObject, jisMethod);
+		env->CallVoidMethod(_jGoogleInterstitialObject, jisMethod);
 	}
 	catch (const notFound&)
 	{
@@ -190,9 +248,9 @@ bool jniGoogle_Interstitial_isLoaded()
 	{
 		JNIEnv* env = jniGetEnv();
 		LOCAL_REF_HOLDER(env);
-		jmethodID jisMethod = env->GetMethodID(_jGoogleAdmobClass, "isLoaded", "()Z");
+		jmethodID jisMethod = env->GetMethodID(_jGoogleInterstitialClass, "isLoaded", "()Z");
 		JNI_NOT_NULL(jisMethod);
-		jboolean jb = env->CallBooleanMethod(_jGoogleAdmobObject, jisMethod);
+		jboolean jb = env->CallBooleanMethod(_jGoogleInterstitialObject, jisMethod);
 		result = (bool)jb;
 
 	}
@@ -216,9 +274,9 @@ bool jniGoogle_Interstitial_isLoading()
 	{
 		JNIEnv* env = jniGetEnv();
 		LOCAL_REF_HOLDER(env);
-		jmethodID jisMethod = env->GetMethodID(_jGoogleAdmobClass, "isLoading", "()Z");
+		jmethodID jisMethod = env->GetMethodID(_jGoogleInterstitialClass, "isLoading", "()Z");
 		JNI_NOT_NULL(jisMethod);
-		jboolean jb = env->CallBooleanMethod(_jGoogleAdmobObject, jisMethod);
+		jboolean jb = env->CallBooleanMethod(_jGoogleInterstitialObject, jisMethod);
 		result = (bool)jb;
 
 	}
@@ -233,7 +291,80 @@ bool jniGoogle_Interstitial_isLoading()
 /* INTERSTITIAL ////*/
 
 
+/* REWARDED */
+void jniGoogle_Rewarded_Show()
+{
+	if (!isGoogleRewardedEnabled())
+		return;
 
+	log::messageln("jniGoogle_Rewarded_Show called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+		jmethodID jisMethod = env->GetMethodID(_jGoogleRewardedClass, "show", "()V");
+		JNI_NOT_NULL(jisMethod);
+		env->CallVoidMethod(_jGoogleRewardedObject, jisMethod);
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Rewarded_Show failed, class/member not found");
+	}
+}
+
+void jniGoogle_Rewarded_Load(const string& unitID)
+{
+	if (!isGoogleRewardedEnabled())
+		return;
+
+	log::messageln("jniGoogle_Rewarded_Show called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+		jstring jid = env->NewStringUTF(unitID.c_str());
+
+
+		jmethodID jisMethod = env->GetMethodID(_jGoogleRewardedClass, "load", "(Ljava/lang/String;)V");
+		JNI_NOT_NULL(jisMethod);
+		env->CallVoidMethod(_jGoogleRewardedObject, jisMethod, jid);
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Rewarded_Show failed, class/member not found");
+	}
+}
+
+bool jniGoogle_Rewarded_isLoaded()
+{
+	if (!isGoogleRewardedEnabled())
+		return false;
+
+	log::messageln("jniGoogle_Rewarded_isLoaded called");
+
+	bool result = false;
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+		jmethodID jisMethod = env->GetMethodID(_jGoogleRewardedClass, "isLoaded", "()Z");
+		JNI_NOT_NULL(jisMethod);
+		jboolean jb = env->CallBooleanMethod(_jGoogleRewardedObject, jisMethod);
+		result = (bool)jb;
+
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Rewarded_isLoaded failed, class/member not found");
+	}
+
+	return result;
+
+}
+
+/* REWARDED ***** /
 
 
 

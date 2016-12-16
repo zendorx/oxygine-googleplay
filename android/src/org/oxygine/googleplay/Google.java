@@ -71,7 +71,7 @@ public class Google {
         return mInterstitialAdapter;
     }
 
-    public RewardedAdapter rewardedAdapterInit(String APP_ID)
+    public RewardedAdapter rewardedAdapterInit(String APP_ID, String UNIT_AD)
     {
         if (mGoogleApiClient == null)
         {
@@ -79,7 +79,7 @@ public class Google {
             return null;
         }
 
-        mRewardedAdapter = new RewardedAdapter(mActivity, mGoogleApiClient, APP_ID);
+        mRewardedAdapter = new RewardedAdapter(mActivity, mGoogleApiClient, APP_ID, UNIT_AD);
         return mRewardedAdapter;
     }
 

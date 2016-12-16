@@ -26,3 +26,7 @@ void jniGoogle_Interstitial_Show();
 void jniGoogle_Interstitial_Load();
 bool jniGoogle_Interstitial_isLoaded();
 bool jniGoogle_Interstitial_isLoading();
+
+void jniGoogle_Rewarded_Show();
+void jniGoogle_Rewarded_Load(const string& unitID);
+bool jniGoogle_Rewarded_isLoaded();

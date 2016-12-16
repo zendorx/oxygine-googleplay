@@ -33,6 +33,25 @@ namespace google
 		bool isLoading();
 	}
 
+	namespace rewarded
+	{
+		class OnRewardVideoLoaded : public Event
+		{ public:	enum { EVENT = eventID('G', 'I', 'R', 'L') }; OnRewardVideoLoaded() : Event(EVENT) {};	};
+		
+		class OnRewardedVideoAdClosed : public Event
+		{ public:	enum { EVENT = eventID('G', 'I', 'R', 'C') }; OnRewardedVideoAdClosed() : Event(EVENT) {};	};
+
+		class OnRewarded : public Event
+		{ public:	enum { EVENT = eventID('G', 'I', 'R', 'R') }; OnRewarded() : Event(EVENT) {}; };
+
+		class OnRewardedVideoAdFailedToLoad : public Event
+		{ public:	enum { EVENT = eventID('G', 'I', 'R', 'F') }; OnRewardedVideoAdFailedToLoad() : Event(EVENT) {}; };
+
+		void show();
+		void load(const string& unitID = "");
+		bool isLoaded();
+	}
+
     /*void init();
     void free();
 

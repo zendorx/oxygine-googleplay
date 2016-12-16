@@ -73,6 +73,8 @@ namespace google
 
 #ifdef __ANDROID__
 			jniGoogle_Interstitial_Load();
+#elif OX_DEBUG
+			googlePlaySimulator_Interstitial_Load();
 #endif 
 		}
 
@@ -84,6 +86,8 @@ namespace google
 
 #ifdef __ANDROID__
 			jniGoogle_Interstitial_Show();
+#elif OX_DEBUG
+			googlePlaySimulator_Interstitial_Show();
 #endif 
 		}
 
@@ -95,6 +99,8 @@ namespace google
 
 #ifdef __ANDROID__
 		    return	jniGoogle_Interstitial_isLoaded();
+#elif OX_DEBUG
+			return googlePlaySimulator_Interstitial_isLoaded();
 #endif 
 			return false;
 		}
@@ -108,13 +114,53 @@ namespace google
 #ifdef __ANDROID__
 			return	jniGoogle_Interstitial_isLoading();
 #endif 
-			return false;
+			return true;
 		}
 
 
 	}//Interstitial
 
+	namespace rewarded
+	{
 
+		void show()
+		{
+#if !GOOGLE_EXT_ENABLED
+			return;
+#endif
+
+#ifdef __ANDROID__
+		   jniGoogle_Rewarded_Show();
+#elif OX_DEBUG
+			googlePlaySimulator_Rewarded_Show();
+#endif 
+		}
+
+		void load(const string& unitID)
+		{
+#if !GOOGLE_EXT_ENABLED
+			return;
+#endif
+
+#ifdef __ANDROID__
+			jniGoogle_Rewarded_Load(unitID);
+#elif OX_DEBUG
+			googlePlaySimulator_Rewarded_Load();
+#endif 
+		}
+
+		bool isLoaded()
+		{
+#if !GOOGLE_EXT_ENABLED
+			return false;
+#endif
+
+#ifdef __ANDROID__
+			return	jniGoogle_Rewarded_isLoaded();
+#endif 
+			return true;
+		}
+	}
 
 
 
@@ -233,7 +279,7 @@ namespace google
 #endif
 
 #ifdef __ANDROID__
-		jniGooglePlaySyncAchievements(jsonAchievs);
+		//jniGooglePlaySyncAchievements(jsonAchievs);
 #endif
 	}
 

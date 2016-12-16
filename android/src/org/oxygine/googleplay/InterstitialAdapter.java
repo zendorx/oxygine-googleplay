@@ -31,6 +31,7 @@ public class InterstitialAdapter extends ActivityObserver {
 
     public InterstitialAdapter(Activity activity, String adUnityID)
     {
+        Log.i(TAG, "InterstitialAdapter InterstitialAdapter");
         mInstance = this;
         mActivity = activity;
 
@@ -40,16 +41,19 @@ public class InterstitialAdapter extends ActivityObserver {
         mInterstitialAd.setAdListener(new AdListener() {
             @Override
             public void onAdLoaded() {
+                Log.i(TAG, "InterstitialAdapter onAdLoaded");
                 nativeOnAdLoaded();
             }
 
             @Override
             public void onAdFailedToLoad(int errorCode) {
+                Log.i(TAG, "InterstitialAdapter onAdFailedToLoad");
                 nativeonAdFailedToLoad();
             }
 
             @Override
             public void onAdClosed() {
+                Log.i(TAG, "InterstitialAdapter onAdClosed");
                 nativeonOnAdClosed();
             }
         });
@@ -67,6 +71,7 @@ public class InterstitialAdapter extends ActivityObserver {
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                Log.i(TAG, "InterstitialAdapter load");
                 AdRequest.Builder adbuilder = new AdRequest.Builder();
                 mInterstitialAd.loadAd(adbuilder.build());
             }
@@ -78,6 +83,7 @@ public class InterstitialAdapter extends ActivityObserver {
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                Log.i(TAG, "InterstitialAdapter show");
                 mInterstitialAd.show();
             }
         });
