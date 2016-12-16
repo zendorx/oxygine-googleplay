@@ -91,7 +91,7 @@ void jniGoogleInit()
         LOCAL_REF_HOLDER(env);
         JNI_NOT_NULL(env);
 		
-		_jGoogleAdmobClass = env->FindClass("org/oxygine/googleplay/InterstitialAdapter");
+		_jGoogleAdmobClass = (jclass)env->NewGlobalRef( env->FindClass("org/oxygine/googleplay/InterstitialAdapter") );
 		JNI_NOT_NULL(_jGoogleAdmobClass);
 
 		_jGoogleAdmobObject = env->NewGlobalRef(jniFindExtension(env, _jGoogleAdmobClass));

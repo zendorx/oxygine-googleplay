@@ -1,6 +1,7 @@
 package org.oxygine.googleplay;
 
 import android.app.Activity;
+import android.util.Log;
 
 import com.chartboost.sdk.Chartboost;
 import com.google.android.gms.ads.AdListener;
@@ -14,6 +15,7 @@ import org.oxygine.lib.extension.ActivityObserver;
  */
 public class InterstitialAdapter extends ActivityObserver {
 
+    public static String TAG = "InterstitialAdapter";
     public static native void nativeOnAdLoaded();
     public static native void nativeonAdFailedToLoad();
     public static native void nativeonOnAdClosed();
@@ -30,6 +32,7 @@ public class InterstitialAdapter extends ActivityObserver {
     public InterstitialAdapter(Activity activity, String adUnityID)
     {
         mInstance = this;
+        mActivity = activity;
 
         mInterstitialAd = new InterstitialAd(activity);
         mInterstitialAd.setAdUnitId(adUnityID);
@@ -56,6 +59,11 @@ public class InterstitialAdapter extends ActivityObserver {
 
     public void load()
     {
+        if (mActivity == null)
+        {
+            Log.e(TAG, "load: mActivity is null!");
+        }
+
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

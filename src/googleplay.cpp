@@ -25,7 +25,7 @@ namespace google
 
     void init()
     {
-#if !GOOGLEPLAY_EXT_ENABLED
+#if !GOOGLE_EXT_ENABLED
         return;
 #endif
 
@@ -46,7 +46,7 @@ namespace google
 
     void free()
     {
-#if !GOOGLEPLAY_EXT_ENABLED
+#if !GOOGLE_EXT_ENABLED
         return;
 #endif
 
