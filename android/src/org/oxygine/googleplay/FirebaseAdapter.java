@@ -89,7 +89,7 @@ public class FirebaseAdapter extends ActivityObserver {
         mEventBundle.putString(paramID, paramValue);
     }
 
-    public void logEventPutDouble(String paramID, Double paramValue)
+    public void logEventPutDouble(String paramID, double paramValue)
     {
         if (mEventBundle == null)
         {

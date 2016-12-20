@@ -83,7 +83,7 @@ public class Google {
         return mRewardedAdapter;
     }
 
-    public FirebaseAdapter FirebaseAdapterInit()
+    public FirebaseAdapter firebaseAdapterInit()
     {
 
         if (mGoogleApiClient == null)

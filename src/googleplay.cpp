@@ -73,7 +73,7 @@ namespace google
 
 #ifdef __ANDROID__
 			jniGoogle_Interstitial_Load();
-#elif OX_DEBUG
+#elif WIN32
 			googlePlaySimulator_Interstitial_Load();
 #endif 
 		}
@@ -86,7 +86,7 @@ namespace google
 
 #ifdef __ANDROID__
 			jniGoogle_Interstitial_Show();
-#elif OX_DEBUG
+#elif WIN32
 			googlePlaySimulator_Interstitial_Show();
 #endif 
 		}
@@ -99,7 +99,7 @@ namespace google
 
 #ifdef __ANDROID__
 		    return	jniGoogle_Interstitial_isLoaded();
-#elif OX_DEBUG
+#elif WIN32
 			return googlePlaySimulator_Interstitial_isLoaded();
 #endif 
 			return false;
@@ -130,8 +130,8 @@ namespace google
 #endif
 
 #ifdef __ANDROID__
-		   jniGoogle_Rewarded_Show();
-#elif OX_DEBUG
+			jniGoogle_Rewarded_Show();
+#elif WIN32
 			googlePlaySimulator_Rewarded_Show();
 #endif 
 		}
@@ -144,7 +144,7 @@ namespace google
 
 #ifdef __ANDROID__
 			jniGoogle_Rewarded_Load(unitID);
-#elif OX_DEBUG
+#elif WIN32
 			googlePlaySimulator_Rewarded_Load();
 #endif 
 		}
@@ -160,6 +160,150 @@ namespace google
 #endif 
 			return true;
 		}
+	}
+
+	namespace firebase
+	{
+		void setUserProperty(const string& id, const string& value)
+		{
+#if !GOOGLE_EXT_ENABLED
+			return;
+#endif
+
+#ifdef __ANDROID__
+			jniGoogle_Firebase_SetUserProperty(id, value);
+#endif 
+		}
+
+		void startLogEvent(const string& id)
+		{
+#if !GOOGLE_EXT_ENABLED
+			return;
+#endif
+
+#ifdef __ANDROID__
+			jniGoogle_Firebase_StartLogEvent(id);
+#endif 
+		}
+
+		void logEventPutString(const string& paramID, const string& paramValue)
+		{
+#if !GOOGLE_EXT_ENABLED
+			return;
+#endif
+
+#ifdef __ANDROID__
+			jniGoogle_Firebase_LogEventPutString(paramID, paramValue);
+#endif 
+		}
+
+		void logEventPutInt(const string& paramID, int paramValue)
+		{
+#if !GOOGLE_EXT_ENABLED
+			return;
+#endif
+
+#ifdef __ANDROID__
+			jniGoogle_Firebase_LogEventPutInt(paramID, paramValue);
+#endif 
+		}
+
+		void logEventPutDouble(const string& paramID, const double& paramValue)
+		{
+#if !GOOGLE_EXT_ENABLED
+			return;
+#endif
+
+#ifdef __ANDROID__
+			jniGoogle_Firebase_LogEventPutDouble(paramID, paramValue);
+#endif 
+		}
+
+		void endLogEvent()
+		{
+#if !GOOGLE_EXT_ENABLED
+			return;
+#endif
+
+#ifdef __ANDROID__
+			jniGoogle_Firebase_EndLogEvent();
+#endif 
+		}
+
+	}
+
+
+		namespace play
+		{
+			void connect(bool tryToResolveError)
+			{
+#if !GOOGLE_EXT_ENABLED
+				return;
+#endif
+
+#ifdef __ANDROID__
+				jniGoogle_Play_Connect(tryToResolveError);
+#endif
+			}
+
+			bool isConnected()
+			{
+#if !GOOGLE_EXT_ENABLED
+				return false;
+#endif
+
+#ifdef __ANDROID__
+				return jniGoogle_Play_IsConnected();
+#endif
+				return false;
+			}
+
+			bool isConnecting()
+			{
+#if !GOOGLE_EXT_ENABLED
+				return false;
+#endif
+#ifdef __ANDROID__
+				return jniGoogle_Play_IsConnecting();
+#endif
+				return false;
+			}
+
+			void disconnect()
+			{
+#if !GOOGLE_EXT_ENABLED
+				return;
+#endif
+
+#ifdef __ANDROID__
+				jniGoogle_Play_Disconnect();
+#endif
+			}
+
+
+			string getAccountName()
+			{
+#if !GOOGLE_EXT_ENABLED
+				return "";
+#endif
+#ifdef __ANDROID__
+				return jniGoogle_Play_GetAccountName();
+#endif
+				return "";
+
+			}
+
+			string getDisplayName()
+			{
+#if !GOOGLE_EXT_ENABLED
+				return "";
+#endif
+#ifdef __ANDROID__
+				return jniGoogle_Play_GetDisplayName();
+#endif
+				return "";
+			}
+
 	}
 
 

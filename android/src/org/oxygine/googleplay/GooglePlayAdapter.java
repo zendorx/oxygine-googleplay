@@ -39,7 +39,7 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
 
     public static native void nativeOnConnected();
     public static native void nativeOnConnectionFailed();
-    public static native void nativeOnConnectionSuspended();
+    //public static native void nativeOnConnectionSuspended();
 
 
     public static GooglePlayAdapter getInstance()
@@ -73,7 +73,7 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
 
     public void connect(boolean tryResolveError)
     {
-        mTryResolveError = true;
+        mTryResolveError = tryResolveError;
         mGoogleApiClient.connect();
     }
 
@@ -89,7 +89,8 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
 
     @Override
     public void onConnectionSuspended(int i) {
-        nativeOnConnectionSuspended();
+        connect(false);
+        //nativeOnConnectionSuspended();
     }
 
     @Override

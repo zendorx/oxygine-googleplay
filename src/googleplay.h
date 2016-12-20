@@ -52,6 +52,63 @@ namespace google
 		bool isLoaded();
 	}
 
+	namespace firebase {
+
+		void setUserProperty(const string& id, const string& value);
+		
+		void startLogEvent(const string& id);
+		void logEventPutString(const string& paramID, const string& paramValue);
+		void logEventPutInt(const string& paramID, int paramValue);
+		void logEventPutDouble(const string& paramID, const double& paramValue);
+		void endLogEvent();
+
+
+		void invite();
+	}
+
+	namespace play 
+	{
+		class OnConnected : public Event
+		{ public:	enum { EVENT = eventID('G', 'I', 'P', 'C') }; OnConnected() : Event(EVENT) {};	};
+
+		class OnConnectionFailed : public Event
+		{ public:	enum { EVENT = eventID('G', 'I', 'P', 'F') }; OnConnectionFailed() : Event(EVENT) {}; };
+
+		void connect(bool tryToResolveError);
+		bool isConnected();
+		bool isConnecting();
+		void disconnect();
+
+		string getAccountName();
+		string getDisplayName();
+
+		//{ "CgkI1JqekoMWEAIQAg" : 1 , "CgkI1JqekoMWEAIQCu" : 4, "CgkI1JqekoMWEAIQOx" : 2}
+		void syncAchievements(const string& jsonAchievements);
+
+		/* Simulator options*/
+		void _debugSetup(const string& accountName, const string& displayName);
+	}
+
+	namespace auth
+	{
+		class OnDataReceived : public Event
+		{
+			public:	
+				enum { EVENT = eventID('G', 'A', 'D', 'R') }; OnDataReceived() : Event(EVENT) {};
+
+				string uid;
+				string token;
+		};
+
+		class OnRequestFailed : public Event
+		{ public:	enum { EVENT = eventID('G', 'A', 'D', 'F') }; OnRequestFailed() : Event(EVENT) {};	};
+
+		void requestData();
+
+		/* Simulator options*/
+		void _debugSetup(const string& uid, const string& token);
+	}
+
     /*void init();
     void free();
 

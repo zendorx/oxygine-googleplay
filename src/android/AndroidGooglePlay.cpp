@@ -22,6 +22,24 @@ jobject _jGoogleInterstitialObject = 0;
 jclass _jGoogleRewardedClass = 0;
 jobject _jGoogleRewardedObject = 0;
 
+jclass _jGoogleFirebaseClass = 0;
+jobject _jGoogleFirebaseObject = 0;
+
+
+jclass _jGooglePlayClass = 0;
+jobject _jGooglePlayObject = 0;
+
+
+bool isGooglePlayEnabled()
+{
+	return _jGooglePlayObject && _jGooglePlayClass;
+}
+
+bool isGoogleFirebaseEnabled()
+{
+	return _jGoogleFirebaseClass && _jGoogleFirebaseObject;
+}
+
 bool isGoogleInterstitialEnabled()
 {
 	return _jGoogleInterstitialClass && _jGoogleInterstitialObject;
@@ -45,8 +63,12 @@ extern "C"
 	{
 		core::getMainThreadDispatcher().postCallback([=]()
 		{
-			google::interstitial::OnAdLoaded ev;
-			google::dispatcher()->dispatchEvent(&ev);
+			OX_ASSERT(google::dispatcher());
+			if (google::dispatcher())
+			{
+				google::interstitial::OnAdLoaded ev;
+				google::dispatcher()->dispatchEvent(&ev);
+			}			
 		});
 	}
 
@@ -54,8 +76,12 @@ extern "C"
 	{
 		core::getMainThreadDispatcher().postCallback([=]()
 		{
-			google::interstitial::OnAdFailedToLoad ev;
-			google::dispatcher()->dispatchEvent(&ev);
+			OX_ASSERT(google::dispatcher());
+			if (google::dispatcher())
+			{
+				google::interstitial::OnAdFailedToLoad ev;
+				google::dispatcher()->dispatchEvent(&ev);
+			}			
 		});
 	}
 
@@ -63,8 +89,12 @@ extern "C"
 	{
 		core::getMainThreadDispatcher().postCallback([=]()
 		{
-			google::interstitial::OnAdClosed ev;
-			google::dispatcher()->dispatchEvent(&ev);
+			OX_ASSERT(google::dispatcher());
+			if (google::dispatcher())
+			{
+				google::interstitial::OnAdClosed ev;
+				google::dispatcher()->dispatchEvent(&ev);
+			}			
 		});
 	}
 
@@ -73,8 +103,12 @@ extern "C"
 	{
 		core::getMainThreadDispatcher().postCallback([=]()
 		{
-			google::rewarded::OnRewardVideoLoaded ev;
-			google::dispatcher()->dispatchEvent(&ev);
+			OX_ASSERT(google::dispatcher());
+			if (google::dispatcher())
+			{
+				google::rewarded::OnRewardVideoLoaded ev;
+				google::dispatcher()->dispatchEvent(&ev);
+			}			
 		});
 	}
 
@@ -82,8 +116,12 @@ extern "C"
 	{
 		core::getMainThreadDispatcher().postCallback([=]()
 		{
-			google::rewarded::OnRewardedVideoAdClosed ev;
-			google::dispatcher()->dispatchEvent(&ev);
+			OX_ASSERT(google::dispatcher());
+			if (google::dispatcher())
+			{
+				google::rewarded::OnRewardedVideoAdClosed ev;
+				google::dispatcher()->dispatchEvent(&ev);
+			}			
 		});
 	}
 
@@ -91,8 +129,12 @@ extern "C"
 	{
 		core::getMainThreadDispatcher().postCallback([=]()
 		{
-			google::rewarded::OnRewarded ev;
-			google::dispatcher()->dispatchEvent(&ev);
+			OX_ASSERT(google::dispatcher());
+			if (google::dispatcher())
+			{
+				google::rewarded::OnRewarded ev;
+				google::dispatcher()->dispatchEvent(&ev);
+			}			
 		});
 	}
 
@@ -100,13 +142,43 @@ extern "C"
 	{
 		core::getMainThreadDispatcher().postCallback([=]()
 		{
-			google::rewarded::OnRewardedVideoAdFailedToLoad ev;
-			google::dispatcher()->dispatchEvent(&ev);
+			OX_ASSERT(google::dispatcher());
+			if (google::dispatcher())
+			{
+				google::rewarded::OnRewardedVideoAdFailedToLoad ev;
+				google::dispatcher()->dispatchEvent(&ev);
+			}			
 		});
 	}
 
 
 
+
+	JNIEXPORT void JNICALL Java_org_oxygine_googleplay_GooglePlayAdapter_nativeOnConnected(JNIEnv* env, jobject obj)
+	{
+		core::getMainThreadDispatcher().postCallback([=]()
+		{
+			OX_ASSERT(google::dispatcher());
+			if (google::dispatcher())
+			{
+				google::play::OnConnected ev;
+				google::dispatcher()->dispatchEvent(&ev);
+			}
+		});
+	}
+
+	JNIEXPORT void JNICALL Java_org_oxygine_googleplay_GooglePlayAdapter_nativeOnConnectionFailed(JNIEnv* env, jobject obj)
+	{
+		core::getMainThreadDispatcher().postCallback([=]()
+		{
+			OX_ASSERT(google::dispatcher());
+			if (google::dispatcher())
+			{
+				google::play::OnConnectionFailed ev;
+				google::dispatcher()->dispatchEvent(&ev);
+			}
+		});
+	}
 
 
    /* JNIEXPORT void JNICALL Java_org_oxygine_googleplay_GooglePlayAdapter_nativeOnGetToken(JNIEnv* env, jobject obj,jstring uid, jstring token)
@@ -154,6 +226,14 @@ void jniGoogleInit()
 
 		_jGoogleRewardedObject = env->NewGlobalRef(jniFindExtension(env, _jGoogleRewardedClass));
 		JNI_NOT_NULL(_jGoogleRewardedObject);
+
+
+
+		_jGoogleFirebaseClass = (jclass)env->NewGlobalRef(env->FindClass("org/oxygine/googleplay/FirebaseAdapter"));
+		JNI_NOT_NULL(_jGoogleFirebaseClass);
+
+		_jGoogleFirebaseObject = env->NewGlobalRef(jniFindExtension(env, _jGoogleFirebaseClass));
+		JNI_NOT_NULL(_jGoogleFirebaseObject);
 
 
         /*_jGoogleClass = env->FindClass("org/oxygine/googleplay/GooglePlayAdapter");
@@ -367,10 +447,308 @@ bool jniGoogle_Rewarded_isLoaded()
 /* REWARDED ***** /
 
 
+/* FIREBASE */
 
 
+void jniGoogle_Firebase_SetUserProperty(const string& id, const string& value)
+{
+	if (!isGoogleFirebaseEnabled())
+		return;
+
+	log::messageln("jniGoogle_Firebase_SetUserProperty called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+		
+		jstring jid = env->NewStringUTF(id.c_str());
+		jstring jvalue = env->NewStringUTF(value.c_str());
+		jmethodID jisMethod = env->GetMethodID(_jGoogleFirebaseClass, "setUserProperty", "(Ljava/lang/String;Ljava/lang/String;)V");
+		JNI_NOT_NULL(jisMethod);
+		env->CallVoidMethod(_jGoogleFirebaseObject, jisMethod, jid, jvalue);
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Firebase_SetUserProperty failed, class/member not found");
+	}
+}
+
+void jniGoogle_Firebase_StartLogEvent(const string& id)
+{
+	if (!isGoogleFirebaseEnabled())
+		return;
+
+	log::messageln("jniGoogle_Firebase_StartLogEvent called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+		
+		jstring jid = env->NewStringUTF(id.c_str());
+
+		jmethodID jisMethod = env->GetMethodID(_jGoogleFirebaseClass, "startLogEvent", "(Ljava/lang/String;)V");
+		JNI_NOT_NULL(jisMethod);
+		env->CallVoidMethod(_jGoogleFirebaseObject, jisMethod, jid);
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Firebase_StartLogEvent failed, class/member not found");
+	}
+}
+
+void jniGoogle_Firebase_LogEventPutString(const string& id, const string& value)
+{
+	if (!isGoogleFirebaseEnabled())
+		return;
+
+	log::messageln("jniGoogle_Firebase_LogEventPutString called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+		
+		jstring jid = env->NewStringUTF(id.c_str());
+		jstring jvalue = env->NewStringUTF(value.c_str());
 
 
+		jmethodID jisMethod = env->GetMethodID(_jGoogleFirebaseClass, "logEventPutString", "(Ljava/lang/String;Ljava/lang/String;)V");
+		JNI_NOT_NULL(jisMethod);
+		env->CallVoidMethod(_jGoogleFirebaseObject, jisMethod, jid, jvalue);
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Firebase_LogEventPutString failed, class/member not found");
+	}
+}
+
+void jniGoogle_Firebase_LogEventPutInt(const string& id, int value)
+{
+	if (!isGoogleFirebaseEnabled())
+		return;
+
+	log::messageln("jniGoogle_Firebase_LogEventPutInt called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+
+		jstring jid = env->NewStringUTF(id.c_str());
+
+		jmethodID jisMethod = env->GetMethodID(_jGoogleFirebaseClass, "logEventPutInt", "(Ljava/lang/String;I)V");
+		JNI_NOT_NULL(jisMethod);
+		env->CallVoidMethod(_jGoogleFirebaseObject, jisMethod, jid, value);
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Firebase_LogEventPutInt failed, class/member not found");
+	}
+}
+
+void jniGoogle_Firebase_LogEventPutDouble(const string& id, const double& value)
+{
+	if (!isGoogleFirebaseEnabled())
+		return;
+
+	log::messageln("jniGoogle_Firebase_LogEventPutDouble called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+
+		jstring jid = env->NewStringUTF(id.c_str());
+
+		jmethodID jisMethod = env->GetMethodID(_jGoogleFirebaseClass, "logEventPutDouble", "(Ljava/lang/String;D)V");
+		JNI_NOT_NULL(jisMethod);
+		env->CallVoidMethod(_jGoogleFirebaseObject, jisMethod, jid, value);
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Firebase_LogEventPutDouble failed, class/member not found");
+	}
+}
+
+void jniGoogle_Firebase_EndLogEvent()
+{
+	if (!isGoogleFirebaseEnabled())
+		return;
+
+	log::messageln("jniGoogle_Firebase_EndLogEvent called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+
+		jmethodID jisMethod = env->GetMethodID(_jGoogleFirebaseClass, "endLogEvent", "()V");
+		JNI_NOT_NULL(jisMethod);
+		env->CallVoidMethod(_jGoogleFirebaseObject, jisMethod);
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Firebase_EndLogEvent failed, class/member not found");
+	}
+}
+
+/* FIREBASE *********/
+
+
+/* PLAY */
+
+void jniGoogle_Play_Connect(bool tryToResolveError)
+{
+	if (!isGooglePlayEnabled())
+		return;
+
+	log::messageln("jniGoogle_Play_Connect called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+
+		jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "connect", "(Z)V");
+		JNI_NOT_NULL(jisMethod);
+		env->CallVoidMethod(_jGooglePlayObject, jisMethod, tryToResolveError);
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Play_Connect failed, class/member not found");
+	}
+}
+
+
+bool jniGoogle_Play_IsConnected()
+{
+	if (!isGooglePlayEnabled())
+		return false;
+
+	log::messageln("jniGoogle_Play_IsConnected called");
+	bool result = false;
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+
+		jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "isConnected", "()Z");
+		JNI_NOT_NULL(jisMethod);
+		jboolean jb = env->CallBooleanMethod(_jGooglePlayObject, jisMethod);
+		result = (bool)jb;
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Play_IsConnected failed, class/member not found");
+	}
+
+	return result;
+}
+
+
+bool jniGoogle_Play_IsConnecting()
+{
+	if (!isGooglePlayEnabled())
+		return false;
+
+	log::messageln("jniGoogle_Play_IsConnecting called");
+	bool result = false;
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+
+		jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "isConnecting", "()Z");
+		JNI_NOT_NULL(jisMethod);
+		jboolean jb = env->CallBooleanMethod(_jGooglePlayObject, jisMethod);
+		result = (bool)jb;
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Play_IsConnecting failed, class/member not found");
+	}
+
+	return result;
+}
+
+
+void jniGoogle_Play_Disconnect()
+{
+	if (!isGooglePlayEnabled())
+		return;
+
+	log::messageln("jniGoogle_Play_Disconnect called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+
+		jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "disconnect", "()V");
+		JNI_NOT_NULL(jisMethod);
+		env->CallVoidMethod(_jGooglePlayObject, jisMethod);
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Play_Disconnect failed, class/member not found");
+	}
+}
+
+string jniGoogle_Play_GetAccountName()
+{
+	if (!isGooglePlayEnabled())
+		return "";
+
+	log::messageln("jniGoogle_Play_GetAccountName called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+		jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "getCurrentAccountName", "()Ljava/lang/String;");
+		JNI_NOT_NULL(jisMethod);
+		jobject result = env->CallObjectMethod(_jGooglePlayObject, jisMethod);
+		string data = jniGetString(env, (jstring)result);
+		return data;
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Play_GetAccountName failed, class/member not found");
+	}
+
+	return "";
+}
+
+string jniGoogle_Play_GetDisplayName()
+{
+	if (!isGooglePlayEnabled())
+		return "";
+
+	log::messageln("jniGoogle_Play_GetDisplayName called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+		jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "getDisplayName", "()Ljava/lang/String;");
+		JNI_NOT_NULL(jisMethod);
+		jobject result = env->CallObjectMethod(_jGooglePlayObject, jisMethod);
+		string data = jniGetString(env, (jstring)result);
+		return data;
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Play_GetDisplayName failed, class/member not found");
+	}
+
+	return "";
+}
+/* PLAY ********/
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
 void jniGooglePlaySyncAchievements(const string& jsonAchievements)
 {
     if (!isGoogleEnabled())

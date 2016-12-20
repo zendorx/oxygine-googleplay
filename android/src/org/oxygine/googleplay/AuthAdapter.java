@@ -45,7 +45,7 @@ public class AuthAdapter extends ActivityObserver {
         mActivity = activity;
     }
 
-    public void dataUpdateRequest()
+    public void requestData()
     {
         TokenRequestTask task = new TokenRequestTask();
         task.execute();
@@ -56,7 +56,7 @@ public class AuthAdapter extends ActivityObserver {
     {
         if (requestCode == AR_REQUEST_TOKEN_RECOVER) {
             if (resultCode == Activity.RESULT_OK) {
-                dataUpdateRequest();
+                requestData();
             } else {
                 nativeOnFailed();
             }
