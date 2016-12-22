@@ -49,6 +49,7 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
 
     public GooglePlayAdapter(Activity activity, GoogleApiClient googleApiClient)
     {
+        Log.i(TAG, "GooglePlayAdapter");
         mActivity = activity;
 
         mGoogleApiClient = googleApiClient;
@@ -58,6 +59,7 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
 
     public void disconnect()
     {
+        Log.i(TAG, "disconnect");
         mGoogleApiClient.disconnect();
     }
 
@@ -73,6 +75,7 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
 
     public void connect(boolean tryResolveError)
     {
+        Log.i(TAG, "connect " + String.valueOf(tryResolveError));
         mTryResolveError = tryResolveError;
         mGoogleApiClient.connect();
     }
@@ -84,11 +87,13 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
     public String getDisplayName() { return Games.Players.getCurrentPlayer(mGoogleApiClient).getDisplayName(); }
     @Override
     public void onConnected(Bundle bundle) {
+        Log.i(TAG, "onConnected");
         nativeOnConnected();
     }
 
     @Override
     public void onConnectionSuspended(int i) {
+        Log.i(TAG, "onConnectionSuspended");
         connect(false);
         //nativeOnConnectionSuspended();
     }
@@ -137,6 +142,16 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
         return "";
     }
 
+    public void unlockAchievement(final String id)
+    {
+        _activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "unlockAchievement called: " + id);
+                Games.Achievements.unlock(mGoogleApiClient, id);
+            }
+        });
+    }
     /*
             syncAchievements : { "CgkI1JqekoMWEAIQAg" : 1 }
     */

@@ -61,23 +61,24 @@ public:
 
     GooglePlayDialog()
     {
+
         setPriority(9999);
 
         spActor blocker = new Actor;
         blocker->setPosition(-getStage()->getSize());
         blocker->setSize(getStage()->getSize() * 3);
         addChild(blocker);
-
+		
         _bg = new Box9Sprite;
         addChild(_bg);
-
+		
         _title = new TextField;
         _title->setAlign(TextStyle::VALIGN_MIDDLE, TextStyle::HALIGN_CENTER);
         _title->setMultiline(true);
         _title->setColor(Color::Black);
         addChild(_title);
-
-        _btnOk = new Btn();
+        
+		_btnOk = new Btn();
         _btnOk->setSize(70, 30);
         _btnOk->setText("Ok");
         addChild(_btnOk);
@@ -158,7 +159,8 @@ bool _googlePlaySimulator_Rewarded_isLoaded = false;
 
 void googlePlaySimulator_Rewarded_Show()
 {
-	spGooglePlayDialog dialog = new GooglePlayDialog;
+
+	spGooglePlayDialog dialog = new GooglePlayDialog();
 	dialog->setScale(1.0f / getStage()->getScaleX());
 	dialog->setSize(500, 300);
 	getStage()->addChild(dialog);

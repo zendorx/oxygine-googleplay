@@ -82,6 +82,8 @@ namespace google
 		string getAccountName();
 		string getDisplayName();
 
+		void unlockAchievement(const string& id);
+
 		//{ "CgkI1JqekoMWEAIQAg" : 1 , "CgkI1JqekoMWEAIQCu" : 4, "CgkI1JqekoMWEAIQOx" : 2}
 		void syncAchievements(const string& jsonAchievements);
 

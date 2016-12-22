@@ -304,6 +304,17 @@ namespace google
 				return "";
 			}
 
+			void unlockAchievement(const string& id)
+			{
+#if !GOOGLE_EXT_ENABLED
+				return;
+#endif
+
+#ifdef __ANDROID__
+				jniGoogle_Play_UnlockAchievement(id);
+#endif
+			}
+
 	}
 
 
@@ -318,7 +329,7 @@ namespace google
 
 
 
-
+		/*
 
     void signin(bool tryToResolveError)
     {

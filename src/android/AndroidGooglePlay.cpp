@@ -13,8 +13,8 @@
 
 using namespace oxygine;
 
-jclass _jGoogleClass = 0;
-jobject _jGoogleObject = 0;
+//jclass _jGoogleClass = 0;
+//jobject _jGoogleObject = 0;
 
 jclass _jGoogleInterstitialClass = 0;
 jobject _jGoogleInterstitialObject = 0;
@@ -50,10 +50,10 @@ bool isGoogleRewardedEnabled()
 	return _jGoogleRewardedClass && _jGoogleRewardedObject;
 }
 
-bool isGoogleEnabled()
+/*bool isGoogleEnabled()
 {
     return _jGoogleClass && _jGoogleObject;
-}
+}*/
 
 
 extern "C"
@@ -236,6 +236,12 @@ void jniGoogleInit()
 		JNI_NOT_NULL(_jGoogleFirebaseObject);
 
 
+		_jGooglePlayClass = (jclass)env->NewGlobalRef(env->FindClass("org/oxygine/googleplay/GooglePlayAdapter"));
+		JNI_NOT_NULL(_jGooglePlayClass);
+
+		_jGooglePlayObject = env->NewGlobalRef(jniFindExtension(env, _jGooglePlayClass));
+		JNI_NOT_NULL(_jGooglePlayObject);
+
         /*_jGoogleClass = env->FindClass("org/oxygine/googleplay/GooglePlayAdapter");
         JNI_NOT_NULL(_jGoogleClass);
 
@@ -253,19 +259,24 @@ void jniGoogleInit()
 
 void jniGoogleFree()
 {
-    if (!isGoogleEnabled())
-        return;
-
 	try
     {
         JNIEnv* env = jniGetEnv();
         LOCAL_REF_HOLDER(env);
 
-        env->DeleteGlobalRef(_jGoogleClass);
-        _jGoogleClass = 0;
 
-        env->DeleteGlobalRef(_jGoogleObject);
-        _jGoogleObject = 0;
+		env->DeleteGlobalRef(_jGoogleInterstitialClass); _jGoogleInterstitialClass = 0;
+		env->DeleteGlobalRef(_jGoogleInterstitialObject); _jGoogleInterstitialObject = 0;
+
+		env->DeleteGlobalRef(_jGoogleRewardedClass); _jGoogleRewardedClass = 0;
+		env->DeleteGlobalRef(_jGoogleRewardedObject); _jGoogleRewardedObject = 0;
+
+		env->DeleteGlobalRef(_jGoogleFirebaseClass); _jGoogleFirebaseClass = 0;
+		env->DeleteGlobalRef(_jGoogleFirebaseObject); _jGoogleFirebaseObject = 0;
+
+		env->DeleteGlobalRef(_jGooglePlayClass); _jGooglePlayClass = 0;
+		env->DeleteGlobalRef(_jGooglePlayObject); _jGooglePlayObject = 0;
+
     }
     catch (const notFound&)
     {
@@ -318,7 +329,7 @@ void jniGoogle_Interstitial_Load()
 
 bool jniGoogle_Interstitial_isLoaded()
 {
-	if (!isGoogleEnabled())
+	if (!isGoogleInterstitialEnabled())
 		return false;
 
 	log::messageln("jniGoogle_Interstitial_isLoaded called");
@@ -344,7 +355,7 @@ bool jniGoogle_Interstitial_isLoaded()
 
 bool jniGoogle_Interstitial_isLoading()
 {
-	if (!isGoogleEnabled())
+	if (!isGoogleInterstitialEnabled())
 		return false;
 
 	log::messageln("jniGoogle_Interstitial_isLoading called");
@@ -398,7 +409,7 @@ void jniGoogle_Rewarded_Load(const string& unitID)
 	if (!isGoogleRewardedEnabled())
 		return;
 
-	log::messageln("jniGoogle_Rewarded_Show called");
+	log::messageln("jniGoogle_Rewarded_Load called");
 
 	try
 	{
@@ -413,7 +424,7 @@ void jniGoogle_Rewarded_Load(const string& unitID)
 	}
 	catch (const notFound&)
 	{
-		log::error("jniGoogle_Rewarded_Show failed, class/member not found");
+		log::error("jniGoogle_Rewarded_Load failed, class/member not found");
 	}
 }
 
@@ -721,6 +732,29 @@ string jniGoogle_Play_GetAccountName()
 	return "";
 }
 
+
+void jniGoogle_Play_UnlockAchievement(const string& id)
+{
+	if (!isGooglePlayEnabled())
+		return;
+
+	log::messageln("jniGoogle_Play_UnlockAchievement called");
+
+	try
+	{
+		JNIEnv* env = jniGetEnv();
+		LOCAL_REF_HOLDER(env);
+		jstring jid = env->NewStringUTF(id.c_str());
+		jmethodID jisMethod = env->GetMethodID(_jGooglePlayClass, "unlockAchievement", "(Ljava/lang/String;)V");
+		JNI_NOT_NULL(jisMethod);
+		env->CallVoidMethod(_jGooglePlayObject, jisMethod, jid);
+	}
+	catch (const notFound&)
+	{
+		log::error("jniGoogle_Play_UnlockAchievement failed, class/member not found");
+	}
+}
+
 string jniGoogle_Play_GetDisplayName()
 {
 	if (!isGooglePlayEnabled())
@@ -749,7 +783,7 @@ string jniGoogle_Play_GetDisplayName()
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void jniGooglePlaySyncAchievements(const string& jsonAchievements)
+/*void jniGooglePlaySyncAchievements(const string& jsonAchievements)
 {
     if (!isGoogleEnabled())
             return;
@@ -816,6 +850,7 @@ void jniGooglePlaySignIn(bool tryToResolveError)
         log::error("jniGooglePlaySignIn failed, class/member not found");
     }
 }
+
 
 string jniGooglePlayGetUserID()
 {

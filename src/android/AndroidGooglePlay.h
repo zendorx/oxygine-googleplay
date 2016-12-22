@@ -7,7 +7,7 @@ using namespace std;
 void jniGoogleInit();
 void jniGoogleFree();
 
-void jniGooglePlaySignIn(bool tryToResolveError);
+/*void jniGooglePlaySignIn(bool tryToResolveError);
 bool jniIsGooglePlaySignedIn();
 void jniGooglePlaySignOut();
 
@@ -19,7 +19,7 @@ void jniGooglePlayShowAchievements();
 void jniGooglePlaySyncAchievements(const string& jsonAchievements);
 
 void jniGooglePlaySubmitResult(int score, const string& leaderBoardID);
-void jniGooglePlayShowLeaderboard(const string& leaderBoardID);
+void jniGooglePlayShowLeaderboard(const string& leaderBoardID);*/
 
 
 void jniGoogle_Interstitial_Show();
@@ -45,3 +45,4 @@ bool jniGoogle_Play_IsConnecting();
 void jniGoogle_Play_Disconnect();
 string jniGoogle_Play_GetAccountName();
 string jniGoogle_Play_GetDisplayName();
+void jniGoogle_Play_UnlockAchievement(const string& id);
