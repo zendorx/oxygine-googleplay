@@ -223,8 +223,11 @@ namespace googleplay
     {
         void onSignInResult(int errorCode)
         {
+            if (!_dispatcher)
+                return;
+
             OnSignInResult ev(errorCode);
-            _dispatcher->dispatchEvent(&ev);
+            _dispatcher->dispatchEvent(&ev);    
         }
 
         void onGetTokenResult(const string& uid, const string& token)
@@ -233,6 +236,9 @@ namespace googleplay
                 return;
 
             if (token.empty())
+                return;
+
+            if (!_dispatcher)
                 return;
 
             log::messageln("internal onGetToken: %s %s", uid.c_str(), token.c_str());

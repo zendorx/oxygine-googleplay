@@ -22,7 +22,7 @@ public:
     {
         _txt = new TextField;
         _txt->setText("OK");
-        _txt->setAlign(TextStyle::VALIGN_MIDDLE, TextStyle::HALIGN_CENTER);
+        _txt->setAlign(TextStyle::VALIGN_MIDDLE, TextStyle::HALIGN_MIDDLE);
         addChild(_txt);
 
         setColor(Color::Green);
@@ -76,7 +76,7 @@ public:
         addChild(_bg);
 
         _title = new TextField;
-        _title->setAlign(TextStyle::VALIGN_MIDDLE, TextStyle::HALIGN_CENTER);
+        _title->setAlign(TextStyle::VALIGN_MIDDLE, TextStyle::HALIGN_MIDDLE);
         _title->setMultiline(true);
         _title->setColor(Color::Black);
         addChild(_title);
@@ -107,7 +107,8 @@ public:
         _bg->setSize(size);
 
         Vector2 center = core::getDisplaySize().cast<Vector2>() / 2.0f;
-        center = getStage()->global2local(center);
+		
+        center = getStage()->local2parent(center);
 
         float sx = getStage()->getScaleX();
         setPosition(center - size / sx / 2);
