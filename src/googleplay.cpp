@@ -89,7 +89,7 @@ namespace googleplay
 #elif __APPLE__
         
 #elif OX_DEBUG
-		googleplaySimulator_SignIn();
+		//googleplaySimulator_SignIn();
 #endif
     }
 

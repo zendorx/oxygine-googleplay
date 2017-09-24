@@ -1,13 +1,13 @@
 #include "GooglePlaySimulator.h"
 #include "googleplay.h"
-#include "json/json.h"
-#include "core/file.h"
-#include "Box9Sprite.h"
-#include "TextField.h"
-#include "DebugActor.h"
-#include "res/Resources.h"
-#include "Stage.h"
-#include "core/oxygine.h"
+#include "oxygine/json/json.h"
+#include "oxygine/core/file.h"
+#include "oxygine/actor/Box9Sprite.h"
+#include "oxygine/actor/TextField.h"
+#include "oxygine/actor/DebugActor.h"
+#include "oxygine/res/Resources.h"
+#include "oxygine/actor/Stage.h"
+#include "oxygine/core/oxygine.h"
 
 bool googleplay_signedin = false;
 string googleplay_token = "token-token-token";
