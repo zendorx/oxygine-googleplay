@@ -1,13 +1,13 @@
 #include <jni.h>
 #include <android/log.h>
 #include <assert.h>
-#include "core/oxygine.h"
-#include "core/Object.h"
-#include "core/ThreadMessages.h"
-#include "core/oxygine.h"
-#include "core/android/jniHelper.h"
-#include "core/android/jniUtils.h"
-#include "json/json.h"
+#include "oxygine/core/oxygine.h"
+#include "oxygine/core/Object.h"
+#include "oxygine/core/ThreadMessages.h"
+#include "oxygine/core/oxygine.h"
+#include "oxygine/core/android/jniHelper.h"
+#include "oxygine/core/android/jniUtils.h"
+#include "oxygine/json/json.h"
 #include "src/googleplay.h"
 
 
