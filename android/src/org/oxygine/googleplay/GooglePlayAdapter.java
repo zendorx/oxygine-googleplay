@@ -89,15 +89,24 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
     }
 
     public String getUserID() {
+        if (!isSignedIn())
+            return "";
+
         return _currentUserID;
     }
 
     public String getUserName()
     {
+        if (!isSignedIn())
+            return "";
+
         return Games.Players.getCurrentPlayer(mGoogleApiClient).getDisplayName();
     }
 
     public String getToken() {
+        if (!isSignedIn())
+            return "";
+
         return _currentToken;
     }
 
@@ -177,7 +186,8 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
             public void run() {
                 _currentUserID = "";
                 _currentToken = "";
-                mGoogleApiClient.connect();
+                if (mGoogleApiClient != null)
+                    mGoogleApiClient.connect();
             }
         });
     }
@@ -189,14 +199,15 @@ public class GooglePlayAdapter extends ActivityObserver implements GoogleApiClie
             public void run() {
                 _currentUserID = "";
                 _currentToken = "";
-                mGoogleApiClient.disconnect();
+
+                if (mGoogleApiClient != null)
+                    mGoogleApiClient.disconnect();
             }
         });
 
     }
 
     void showAchievements() {
-
 
         if (!isSignedIn())
             return;
