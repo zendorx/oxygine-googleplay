@@ -57,7 +57,9 @@ namespace googleplay
 #ifdef __ANDROID__
         jniGooglePlayFree();
 #endif
-        _dispatcher->removeAllEventListeners();
+        if (_dispatcher)
+            _dispatcher->removeAllEventListeners();
+
         _dispatcher = 0;
         log::messageln("googleplay::free done");
     }
@@ -210,7 +212,7 @@ namespace googleplay
 	void syncAchievements(const string& jsonAchievs)
 	{
 #if !GOOGLEPLAY_EXT_ENABLED
-		return false;
+		return;
 #endif
 
 #ifdef __ANDROID__
@@ -239,7 +241,8 @@ namespace googleplay
                 return;
 
             OnSignInResult ev(errorCode);
-            _dispatcher->dispatchEvent(&ev);    
+            if (_dispatcher)
+                _dispatcher->dispatchEvent(&ev);    
         }
 
         void onGetTokenResult(const string& uid, const string& token)
@@ -255,7 +258,8 @@ namespace googleplay
 
             log::messageln("internal onGetToken: %s %s", uid.c_str(), token.c_str());
             OnGetTokenEvent ev(uid, token);
-            _dispatcher->dispatchEvent(&ev);
+            if (_dispatcher)
+                _dispatcher->dispatchEvent(&ev);
         }
     }
 }
